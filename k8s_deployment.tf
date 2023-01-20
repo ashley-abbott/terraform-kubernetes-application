@@ -2,9 +2,9 @@ resource "kubernetes_deployment" "application" {
   dynamic "metadata" {
     for_each = local.deployment_metadata
     content {
-      name = metadata.value["name"]
-      namespace = metadata.value["namespace"]
-      labels = metadata.value["labels"]
+      name        = metadata.value["name"]
+      namespace   = metadata.value["namespace"]
+      labels      = metadata.value["labels"]
       annotations = metadata.value["annotations"]
     }
   }
@@ -12,49 +12,29 @@ resource "kubernetes_deployment" "application" {
   spec {
     replicas = 3
 
-    selector {
-      match_labels = {
-        test = "MyExampleApp"
+    dynamic "selector" {
+      for_each = local.service_selector
+
+      content {
+        match_labels = local.service_selector
       }
     }
 
     template {
-      metadata {
-        labels = {
-          test = "MyExampleApp"
+      dynamic "metadata" {
+        for_each = local.deployment_metadata
+        content {
+          name        = metadata.value["name"]
+          namespace   = metadata.value["namespace"]
+          labels      = metadata.value["labels"]
+          annotations = metadata.value["annotations"]
         }
       }
 
       spec {
         container {
-          image = "nginx:1.21.6"
-          name  = "example"
-
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
-
-          liveness_probe {
-            http_get {
-              path = "/"
-              port = 80
-
-              http_header {
-                name  = "X-Custom-Header"
-                value = "Awesome"
-              }
-            }
-
-            initial_delay_seconds = 3
-            period_seconds        = 3
-          }
+          name  = "test"
+          image = "nginx:latest"
         }
       }
     }

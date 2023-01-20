@@ -12,7 +12,17 @@ resource "kubernetes_service_v1" "application" {
   dynamic "spec" {
     for_each = var.service_spec
     content {
-      selector = local.service_selector
+      allocate_load_balancer_node_ports = try(spec.allocate_load_balancer_node_ports, null)
+      cluster_ip                        = try(spec.cluster_ip, null)
+      cluster_ips                       = try(spec.cluster_ip, null)
+      external_ips                      = try(spec.external_ips, null)
+      external_name                     = try(spec.external_name, null)
+      external_traffic_policy           = try(spec.external_traffic_policy, null)
+      internal_traffic_policy           = try(spec.internal_traffic_policy, null)
+      load_balancer_ip                  = try(spec.load_balancer_ip, null)
+      session_affinity                  = try(spec.session_affinity, null)
+      selector                          = local.service_selector
+      type                              = try(spec.value["type"], null)
 
       dynamic "port" {
         for_each = spec.value["ports"]
@@ -25,7 +35,6 @@ resource "kubernetes_service_v1" "application" {
           node_port   = try(port.value["node_port"], null)
         }
       }
-      type = try(spec.value["type"], null)
     }
   }
 }
