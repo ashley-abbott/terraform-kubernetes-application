@@ -58,7 +58,7 @@ variable "deployment_annotations" {
 }
 
 variable "deployment_spec" {
-  type = string
+  type        = any
   description = "(optional) describe your variable"
 }
 
@@ -81,6 +81,12 @@ variable "hpa_spec" {
   default     = null
 }
 
+variable "min_replicas" {
+  type        = number
+  description = "(optional) describe your variable"
+  default     = null
+}
+
 variable "max_replicas" {
   type        = number
   description = "(optional) describe your variable"
@@ -95,13 +101,15 @@ variable "target_cpu_utilization_percentage" {
 
 # Ingress
 variable "ingress_labels" {
-  type = map(string)
+  type        = map(string)
   description = "(optional) describe your variable"
+  default     = {}
 }
 
 variable "ingress_annotations" {
-  type = map(string)
+  type        = map(string)
   description = "(optional) describe your variable"
+  default     = {}
 }
 
 variable "ingress_spec" {
@@ -110,12 +118,29 @@ variable "ingress_spec" {
   default     = null
 }
 
-# Spec'
-
-variable "min_replicas" {
-  type        = number
+# ConfigMap
+variable "configmap_data" {
+  type        = any
   description = "(optional) describe your variable"
   default     = null
+}
+
+variable "configmap_binary_data" {
+  type        = any
+  description = "(optional) describe your variable"
+  default     = null
+}
+
+variable "config_labels" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+variable "config_annotations" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
 }
 
 # Common 

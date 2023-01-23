@@ -24,6 +24,5 @@ resource "kubernetes_horizontal_pod_autoscaler" "example" {
         name = local.deployment_metadata[0]["name"]
       }
     }
-
   }
 }

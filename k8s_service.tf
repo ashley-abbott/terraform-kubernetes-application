@@ -2,7 +2,7 @@ resource "kubernetes_service_v1" "application" {
   dynamic "metadata" {
     for_each = local.service_metadata
     content {
-      name        = metadata.value["name"]
+      name        = "${metadata.value["name"]}-svc"
       namespace   = metadata.value["namespace"]
       labels      = metadata.value["labels"]
       annotations = metadata.value["annotations"]
