@@ -4,6 +4,8 @@ locals {
   ingress_enabled  = can(coalesce(var.ingress_spec))
   #config_enabled   = can(coalesce(var.configmap_data, var.configmap_binary_data))
   #secret_enabled   = can(coalesce(var.secret_data, var.secret_binary_data))
+  configmap_binary_data = try(merge({ for k,v in var.configmap_data : k => {} }, var.configmap_binary_data), {})
+  secret_binary_data = try(merge({ for k,v in var.secret_data : k => {} }, var.secret_binary_data), {})
 
   standard_metadata = {
     name      = var.app_name
