@@ -62,6 +62,18 @@ variable "deployment_spec" {
   description = "(optional) describe your variable"
 }
 
+variable "deployment_strategy" {
+  type = object({
+    type           = optional(string)
+    rolling_update = optional(map(string))
+  })
+  description = "(optional) describe your variable"
+  default = {
+    type           = null
+    rolling_update = {}
+  }
+}
+
 # HPA
 variable "hpa_labels" {
   type        = map(string)
@@ -122,13 +134,13 @@ variable "ingress_spec" {
 variable "configmap_data" {
   type        = any
   description = "(optional) describe your variable"
-  default     = null
+  default     = {}
 }
 
 variable "configmap_binary_data" {
   type        = any
   description = "(optional) describe your variable"
-  default     = null
+  default     = {}
 }
 
 variable "config_labels" {
@@ -138,6 +150,31 @@ variable "config_labels" {
 }
 
 variable "config_annotations" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+# Secret
+variable "secret_data" {
+  type        = any
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+variable "secret_binary_data" {
+  type        = any
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+variable "secret_labels" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+variable "secret_annotations" {
   type        = map(string)
   description = "(optional) describe your variable"
   default     = {}

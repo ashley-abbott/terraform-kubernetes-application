@@ -2,7 +2,9 @@ locals {
   service_selector = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
   hpa_enabled      = can(coalesce(var.hpa_spec))
   ingress_enabled  = can(coalesce(var.ingress_spec))
-  config_enabled   = can(coalesce(var.configmap_data, var.configmap_binary_data))
+  #config_enabled   = can(coalesce(var.configmap_data, var.configmap_binary_data))
+  #secret_enabled   = can(coalesce(var.secret_data, var.secret_binary_data))
+
   standard_metadata = {
     name      = var.app_name
     namespace = try(lower(var.namespace), "default")
@@ -33,6 +35,13 @@ locals {
     merge(local.standard_metadata, {
       labels      = try(merge(var.common_labels, { app = var.app_name }, var.config_labels), {})
       annotations = try(merge(var.config_annotations, var.common_annotations), {})
+    })
+  ]
+
+  secret_metadata = [
+    merge(local.standard_metadata, {
+      labels      = try(merge(var.common_labels, { app = var.app_name }, var.secret_labels), {})
+      annotations = try(merge(var.secret_annotations, var.common_annotations), {})
     })
   ]
 

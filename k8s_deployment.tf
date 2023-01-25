@@ -10,7 +10,9 @@ resource "kubernetes_deployment" "application" {
   }
 
   spec {
-    replicas = 3
+    replicas          = 3
+    min_ready_seconds = 300
+    paused            = false
 
     dynamic "selector" {
       for_each = local.service_selector
