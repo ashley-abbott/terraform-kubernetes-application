@@ -11,7 +11,7 @@ jobs:
         ref: ${{ github.event.pull_request.head.ref }}
 
     - name: Render terraform docs
-      uses: terraform-docs/gh-actions@v1.0.8
+      uses: Dirrk/terraform-docs/gh-actions@v1.0.8
       with:
         tf_docs_config_file: .terraform-docs.yml
         tf_docs_output_file: README.md
