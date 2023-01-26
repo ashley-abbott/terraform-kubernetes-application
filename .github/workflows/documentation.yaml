@@ -14,13 +14,14 @@ jobs:
       uses: terraform-docs/gh-actions@v1.0.0
       with:
         config-file: .terraform-docs.yml
+        git-push: "true"
       
     - name: Fix permissions
       run: sudo chown runner:docker -R .git
 
-    - name: Push changes back to PR
-      run: |
-        git config --local user.name github-actions[bot]
-        git config user.email github-actions[bot]@noreply.github.com
-        git commit -am "Updated Readme"
-        git push
+    # - name: Push changes back to PR
+    #   run: |
+    #     git config --local user.name github-actions[bot]
+    #     git config user.email github-actions[bot]@noreply.github.com
+    #     git commit -am "Updated Readme"
+    #     git push
