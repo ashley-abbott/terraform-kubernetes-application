@@ -64,18 +64,6 @@ variable "deployment_spec" {
   default     = [{}]
 }
 
-variable "deployment_strategy" {
-  type = object({
-    type           = optional(string)
-    rolling_update = optional(list(map(string)))
-  })
-  description = "(optional) describe your variable"
-  default = {
-    type           = null
-    rolling_update = [{}]
-  }
-}
-
 # HPA
 variable "hpa_labels" {
   type        = map(string)
