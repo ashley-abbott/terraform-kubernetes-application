@@ -1,4 +1,4 @@
-resource "kubernetes_horizontal_pod_autoscaler" "example" {
+resource "kubernetes_horizontal_pod_autoscaler" "application" {
   count = local.hpa_enabled ? 1 : 0
 
   dynamic "metadata" {

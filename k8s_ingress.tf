@@ -1,4 +1,4 @@
-resource "kubernetes_ingress" "example_ingress" {
+resource "kubernetes_ingress" "application" {
   count = local.ingress_enabled ? 1 : 0
 
   dynamic "metadata" {

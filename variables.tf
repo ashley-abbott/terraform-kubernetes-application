@@ -42,6 +42,7 @@ variable "service_spec" {
       node_port   = optional(number)
     }))
   }))
+  description = "value"
 }
 
 # Deployment
