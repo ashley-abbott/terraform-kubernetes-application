@@ -14,4 +14,10 @@ jobs:
       uses: terraform-docs/gh-actions@v1.0.0
       with:
         config-file: .terraform-docs.yml
-        git-push: "true"
+      
+    - name: Push changes back to PR
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git commit -am "Updated Readme"
+        git push
