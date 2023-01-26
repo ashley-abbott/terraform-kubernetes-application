@@ -9,7 +9,9 @@ This code is designed with Helm in mind to create a generic K8s application
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | 2.16.1 |
+
 ## Usage
+
 Basic usage of this module is as follows:
 ```hcl
 module "k8s-application" {
@@ -55,6 +57,7 @@ module "k8s-application" {
 	 target_cpu_utilization_percentage  = null
 }
 ```
+
 ## Resources
 
 | Name | Type |
@@ -65,6 +68,7 @@ module "k8s-application" {
 | [kubernetes_ingress.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/ingress) | resource |
 | [kubernetes_secret.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret) | resource |
 | [kubernetes_service_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/service_v1) | resource |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -97,6 +101,7 @@ module "k8s-application" {
 | <a name="input_service_labels"></a> [service\_labels](#input\_service\_labels) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_service_spec"></a> [service\_spec](#input\_service\_spec) | value | <pre>list(object({<br>    allocate_load_balancer_node_ports = optional(bool)<br>    cluster_ip                        = optional(string)<br>    cluster_ips                       = optional(list(string))<br>    external_ips                      = optional(list(string))<br>    external_name                     = optional(string)<br>    external_traffic_policy           = optional(string)<br>    internal_traffic_policy           = optional(string)<br>    load_balancer_ip                  = optional(string)<br>    session_affinity                  = optional(string)<br>    selector                          = optional(map(string))<br>    type                              = optional(string)<br>    ports = list(object({<br>      name        = optional(string)<br>      port        = number<br>      target_port = optional(number)<br>      protocol    = optional(string)<br>      node_port   = optional(number)<br>    }))<br>  }))</pre> | n/a | yes |
 | <a name="input_target_cpu_utilization_percentage"></a> [target\_cpu\_utilization\_percentage](#input\_target\_cpu\_utilization\_percentage) | (optional) describe your variable | `string` | `null` | no |
+
 ## Outputs
 
 | Name | Description |
