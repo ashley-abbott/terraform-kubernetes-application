@@ -2,7 +2,7 @@
 
 This code is designed with Helm in mind to create a generic K8s application
 
-<!-- BEGIN_AUTOMATED_TF_DOCS_BLOCK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -104,4 +104,4 @@ module "k8s-application" {
 | <a name="output_config_binary_data"></a> [config\_binary\_data](#output\_config\_binary\_data) | Assist in debugging |
 | <a name="output_config_data"></a> [config\_data](#output\_config\_data) | Assist in debugging |
 | <a name="output_sercret_binary_data"></a> [sercret\_binary\_data](#output\_sercret\_binary\_data) | Assist in debugging |
-<!-- END_AUTOMATED_TF_DOCS_BLOCK -->
+<!-- END_TF_DOCS -->
