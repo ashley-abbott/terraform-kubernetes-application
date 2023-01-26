@@ -1,11 +1,11 @@
 locals {
-  service_selector = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
-  hpa_enabled      = can(coalesce(var.hpa_spec))
-  ingress_enabled  = can(coalesce(var.ingress_spec))
-  #config_enabled   = can(coalesce(var.configmap_data, var.configmap_binary_data))
-  #secret_enabled   = can(coalesce(var.secret_data, var.secret_binary_data))
-  configmap_binary_data = try(merge({ for k,v in var.configmap_data : k => {} }, var.configmap_binary_data), {})
-  secret_binary_data = try(merge({ for k,v in var.secret_data : k => {} }, var.secret_binary_data), {})
+  service_selector      = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
+  hpa_enabled           = can(coalesce(var.hpa_spec))
+  ingress_enabled       = can(coalesce(var.ingress_spec))
+  configmap_data        = try(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data), {})
+  configmap_binary_data = try(merge({ for k, v in var.configmap_data : k => {} }, var.configmap_binary_data), {})
+  secret_data           = try(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data), {})
+  secret_binary_data    = try(merge({ for k, v in var.secret_data : k => {} }, var.secret_binary_data), {})
 
   standard_metadata = {
     name      = var.app_name
@@ -44,6 +44,13 @@ locals {
     merge(local.standard_metadata, {
       labels      = try(merge(var.common_labels, { app = var.app_name }, var.secret_labels), {})
       annotations = try(merge(var.secret_annotations, var.common_annotations), {})
+    })
+  ]
+
+  ingress_metadata = [
+    merge(local.standard_metadata, {
+      labels      = try(merge(var.common_labels, { app = var.app_name }, var.ingress_labels), {})
+      annotations = try(merge(var.ingress_annotations, var.common_annotations), {})
     })
   ]
 

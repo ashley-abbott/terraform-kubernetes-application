@@ -60,17 +60,18 @@ variable "deployment_annotations" {
 variable "deployment_spec" {
   type        = any
   description = "(optional) describe your variable"
+  default     = [{}]
 }
 
 variable "deployment_strategy" {
   type = object({
     type           = optional(string)
-    rolling_update = optional(map(string))
+    rolling_update = optional(list(map(string)))
   })
   description = "(optional) describe your variable"
   default = {
     type           = null
-    rolling_update = {}
+    rolling_update = [{}]
   }
 }
 

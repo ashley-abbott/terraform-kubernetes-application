@@ -1,8 +1,15 @@
 resource "kubernetes_ingress" "example_ingress" {
   count = local.ingress_enabled ? 1 : 0
 
-  metadata {
-    name = "example-ingress"
+  dynamic "metadata" {
+    for_each = local.ingress_metadata
+
+    content {
+      name        = metadata.value["name"]
+      namespace   = metadata.value["namespace"]
+      labels      = metadata.value["labels"]
+      annotations = metadata.value["annotations"]
+    }
   }
 
   spec {

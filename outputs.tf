@@ -1,3 +1,7 @@
+output "config_data" {
+  value = local.configmap_data
+}
+
 output "config_binary_data" {
   value = local.configmap_binary_data
 }
