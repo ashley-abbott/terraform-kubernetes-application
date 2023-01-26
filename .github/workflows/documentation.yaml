@@ -16,13 +16,3 @@ jobs:
         tf_docs_config_file: .terraform-docs.yml
         tf_docs_output_file: README.md
         tf_docs_git_push: 'true'
-      
-    # - name: Fix permissions
-    #   run: sudo chown runner:docker -R .git
-
-    # - name: Push changes back to PR
-    #   run: |
-    #     git config --local user.name github-actions[bot]
-    #     git config user.email github-actions[bot]@noreply.github.com
-    #     git commit -am "Updated Readme"
-    #     git push
