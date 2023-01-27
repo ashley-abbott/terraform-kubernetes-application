@@ -34,12 +34,6 @@ module "k8s-application" {
 	 deployment_spec  = [
   {}
 ]
-	 deployment_strategy  = {
-  "rolling_update": [
-    {}
-  ],
-  "type": null
-}
 	 hpa_annotations  = {}
 	 hpa_labels  = {}
 	 hpa_spec  = null
@@ -83,7 +77,6 @@ module "k8s-application" {
 | <a name="input_deployment_annotations"></a> [deployment\_annotations](#input\_deployment\_annotations) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_deployment_labels"></a> [deployment\_labels](#input\_deployment\_labels) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_deployment_spec"></a> [deployment\_spec](#input\_deployment\_spec) | (optional) describe your variable | `any` | <pre>[<br>  {}<br>]</pre> | no |
-| <a name="input_deployment_strategy"></a> [deployment\_strategy](#input\_deployment\_strategy) | (optional) describe your variable | <pre>object({<br>    type           = optional(string)<br>    rolling_update = optional(list(map(string)))<br>  })</pre> | <pre>{<br>  "rolling_update": [<br>    {}<br>  ],<br>  "type": null<br>}</pre> | no |
 | <a name="input_hpa_annotations"></a> [hpa\_annotations](#input\_hpa\_annotations) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_hpa_labels"></a> [hpa\_labels](#input\_hpa\_labels) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_hpa_spec"></a> [hpa\_spec](#input\_hpa\_spec) | (optional) describe your variable | `any` | `null` | no |
@@ -102,11 +95,5 @@ module "k8s-application" {
 | <a name="input_service_spec"></a> [service\_spec](#input\_service\_spec) | value | <pre>list(object({<br>    allocate_load_balancer_node_ports = optional(bool)<br>    cluster_ip                        = optional(string)<br>    cluster_ips                       = optional(list(string))<br>    external_ips                      = optional(list(string))<br>    external_name                     = optional(string)<br>    external_traffic_policy           = optional(string)<br>    internal_traffic_policy           = optional(string)<br>    load_balancer_ip                  = optional(string)<br>    session_affinity                  = optional(string)<br>    selector                          = optional(map(string))<br>    type                              = optional(string)<br>    ports = list(object({<br>      name        = optional(string)<br>      port        = number<br>      target_port = optional(number)<br>      protocol    = optional(string)<br>      node_port   = optional(number)<br>    }))<br>  }))</pre> | n/a | yes |
 | <a name="input_target_cpu_utilization_percentage"></a> [target\_cpu\_utilization\_percentage](#input\_target\_cpu\_utilization\_percentage) | (optional) describe your variable | `string` | `null` | no |
 
-## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_config_binary_data"></a> [config\_binary\_data](#output\_config\_binary\_data) | Assist in debugging |
-| <a name="output_config_data"></a> [config\_data](#output\_config\_data) | Assist in debugging |
-| <a name="output_sercret_binary_data"></a> [sercret\_binary\_data](#output\_sercret\_binary\_data) | Assist in debugging |
 <!-- END_TF_DOCS -->
