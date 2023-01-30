@@ -1,5 +1,5 @@
 module "my_k8s_application" {
-  source = "../"
+  source = "../../"
   app_name = "nginx"
   namespace = "dev1"
 

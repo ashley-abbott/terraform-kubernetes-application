@@ -12,36 +12,49 @@ resource "kubernetes_ingress" "application" {
     }
   }
 
-  spec {
-    backend {
-      service_name = "myapp-1"
-      service_port = 8080
-    }
+  dynamic "spec" {
+    for_each = var.ingress_spec
 
-    rule {
-      http {
-        path {
-          backend {
-            service_name = "myapp-1"
-            service_port = 8080
-          }
+    content {
+      dynamic "backend" {
+        for_each = try(spec.value["backend"], {})
 
-          path = "/app1/*"
-        }
-
-        path {
-          backend {
-            service_name = "myapp-2"
-            service_port = 8080
-          }
-
-          path = "/app2/*"
+        content {
+          service_name = try(backend.value["service_name"], null)
+          service_port = try(backend.value["service_port"], null)
         }
       }
-    }
 
-    tls {
-      secret_name = "tls-secret"
+      rule {
+        http {
+          path {
+            backend {
+              service_name = "myapp-1"
+              service_port = 8080
+            }
+
+            path = "/app1/*"
+          }
+
+          path {
+            backend {
+              service_name = "myapp-2"
+              service_port = 8080
+            }
+
+            path = "/app2/*"
+          }
+        }
+      }
+
+      dynamic "tls" {
+        for_each = try(spec.value["tls"], {})
+
+        content {
+          hosts = try(tls.value.hosts, [])
+          secret_name = try(tls.value.hosts, null)
+        }
+      }
     }
   }
 }
