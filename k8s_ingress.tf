@@ -1,4 +1,4 @@
-resource "kubernetes_ingress" "application" {
+resource "kubernetes_ingress_v1" "application" {
   count = local.ingress_enabled ? 1 : 0
 
   dynamic "metadata" {
@@ -16,33 +16,48 @@ resource "kubernetes_ingress" "application" {
     for_each = var.ingress_spec
 
     content {
-      dynamic "backend" {
-        for_each = try(spec.value["backend"], {})
+      ingress_class_name = try(spec.value["ingress_class_name"], null)
+
+      dynamic "default_backend" {
+        for_each = try(spec.value["default_backend"], {})
 
         content {
-          service_name = try(backend.value["service_name"], null)
-          service_port = try(backend.value["service_port"], null)
+          service {
+            name = try(backend.value["service_name"], null)
+            port {
+              number = try(backend.value["service_port"], null)
+            }
+          }
         }
       }
 
-      rule {
-        http {
-          path {
-            backend {
-              service_name = "myapp-1"
-              service_port = 8080
+      dynamic "rule" {
+        for_each = spec.value["rules"]
+
+        content {
+          host = try(rule.value["host"], null)
+          http {
+            dynamic "path" {
+              for_each = try(rule.value["paths"], {})
+
+              content {
+                path = try(path.value["path"], null)
+                path_type = try(path.value["path_type"], null)
+
+                dynamic "backend" {
+                  for_each = try(path.value["backend"], {})
+
+                  content {
+                    service {
+                      name = try(backend.value["service_name"], null)
+                      port {
+                        number = try(backend.value["service_port"], null)
+                      }
+                    }
+                  }
+                }
+              }
             }
-
-            path = "/app1/*"
-          }
-
-          path {
-            backend {
-              service_name = "myapp-2"
-              service_port = 8080
-            }
-
-            path = "/app2/*"
           }
         }
       }

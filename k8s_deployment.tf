@@ -150,7 +150,7 @@ resource "kubernetes_deployment" "application" {
 
             content {
               name = lookup(volume.value, "name", null)
-              
+
             }
           }
         }
