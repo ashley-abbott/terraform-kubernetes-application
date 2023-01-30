@@ -59,7 +59,7 @@ module "k8s-application" {
 | [kubernetes_config_map.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/config_map) | resource |
 | [kubernetes_deployment.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/deployment) | resource |
 | [kubernetes_horizontal_pod_autoscaler.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/horizontal_pod_autoscaler) | resource |
-| [kubernetes_ingress.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/ingress) | resource |
+| [kubernetes_ingress_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/ingress_v1) | resource |
 | [kubernetes_secret.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret) | resource |
 | [kubernetes_service_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/service_v1) | resource |
 
