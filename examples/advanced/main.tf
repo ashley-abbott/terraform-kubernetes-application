@@ -1,6 +1,6 @@
 module "my_k8s_application" {
-  source = "../../"
-  app_name = "nginx"
+  source    = "../../"
+  app_name  = "nginx"
   namespace = "dev1"
 
   deployment_spec = [{
@@ -43,14 +43,14 @@ module "my_k8s_application" {
 
   service_spec = [{
     ports = [
-    {
-      "port" = 80
-    },
-    {
-      "name"        = "something"
-      "port"        = 9000,
-      "target_port" = 9002,
-      "protocol"    = "UDP"
+      {
+        "port" = 80
+      },
+      {
+        "name"        = "something"
+        "port"        = 9000,
+        "target_port" = 9002,
+        "protocol"    = "UDP"
     }]
   }]
 
