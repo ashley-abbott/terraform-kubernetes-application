@@ -170,6 +170,31 @@ variable "secret_annotations" {
   default     = {}
 }
 
+# Pod Disruption Budget
+variable "pod_disruption_budget_max_unavailable" {
+  type        = string
+  description = "(optional) describe your variable"
+  default     = null
+}
+
+variable "pod_disruption_budget_min_available" {
+  type        = string
+  description = "(optional) describe your variable"
+  default     = null
+}
+
+variable "pod_disruption_budget_labels" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+variable "pod_disruption_budget_annotations" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
 # Common 
 variable "common_labels" {
   type        = map(any)

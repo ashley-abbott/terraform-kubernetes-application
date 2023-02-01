@@ -41,7 +41,7 @@ resource "kubernetes_ingress_v1" "application" {
               for_each = try(rule.value["paths"], {})
 
               content {
-                path = try(path.value["path"], null)
+                path      = try(path.value["path"], null)
                 path_type = try(path.value["path_type"], null)
 
                 dynamic "backend" {
@@ -66,7 +66,7 @@ resource "kubernetes_ingress_v1" "application" {
         for_each = try(spec.value["tls"], {})
 
         content {
-          hosts = try(tls.value.hosts, [])
+          hosts       = try(tls.value.hosts, [])
           secret_name = try(tls.value.hosts, null)
         }
       }
