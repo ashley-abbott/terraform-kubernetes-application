@@ -42,6 +42,9 @@ module "k8s-application" {
 	 ingress_spec  = null
 	 max_replicas  = 1
 	 min_replicas  = null
+	 persistent_volume_claim_annotations  = {}
+	 persistent_volume_claim_labels  = {}
+	 persistent_volume_claim_spec  = []
 	 pod_disruption_budget_annotations  = {}
 	 pod_disruption_budget_labels  = {}
 	 pod_disruption_budget_max_unavailable  = null
@@ -64,6 +67,7 @@ module "k8s-application" {
 | [kubernetes_deployment.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/deployment) | resource |
 | [kubernetes_horizontal_pod_autoscaler.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/horizontal_pod_autoscaler) | resource |
 | [kubernetes_ingress_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/ingress_v1) | resource |
+| [kubernetes_persistent_volume_claim_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/persistent_volume_claim_v1) | resource |
 | [kubernetes_pod_disruption_budget_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/pod_disruption_budget_v1) | resource |
 | [kubernetes_secret.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret) | resource |
 | [kubernetes_secret_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret_v1) | resource |
@@ -93,6 +97,9 @@ module "k8s-application" {
 | <a name="input_max_replicas"></a> [max\_replicas](#input\_max\_replicas) | (optional) describe your variable | `number` | `1` | no |
 | <a name="input_min_replicas"></a> [min\_replicas](#input\_min\_replicas) | (optional) describe your variable | `number` | `null` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | (optional) describe your variable | `string` | n/a | yes |
+| <a name="input_persistent_volume_claim_annotations"></a> [persistent\_volume\_claim\_annotations](#input\_persistent\_volume\_claim\_annotations) | (optional) describe your variable | `map(string)` | `{}` | no |
+| <a name="input_persistent_volume_claim_labels"></a> [persistent\_volume\_claim\_labels](#input\_persistent\_volume\_claim\_labels) | (optional) describe your variable | `map(string)` | `{}` | no |
+| <a name="input_persistent_volume_claim_spec"></a> [persistent\_volume\_claim\_spec](#input\_persistent\_volume\_claim\_spec) | (optional) describe your variable | <pre>list(object({<br>    access_modes       = optional(list(string))<br>    storage_request    = optional(string)<br>    storage_class_name = optional(string)<br>    volume_name        = optional(string)<br>  }))</pre> | `[]` | no |
 | <a name="input_pod_disruption_budget_annotations"></a> [pod\_disruption\_budget\_annotations](#input\_pod\_disruption\_budget\_annotations) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_pod_disruption_budget_labels"></a> [pod\_disruption\_budget\_labels](#input\_pod\_disruption\_budget\_labels) | (optional) describe your variable | `map(string)` | `{}` | no |
 | <a name="input_pod_disruption_budget_max_unavailable"></a> [pod\_disruption\_budget\_max\_unavailable](#input\_pod\_disruption\_budget\_max\_unavailable) | (optional) describe your variable | `string` | `null` | no |
