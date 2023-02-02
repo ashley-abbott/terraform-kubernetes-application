@@ -58,6 +58,14 @@ resource "kubernetes_deployment" "application" {
           node_selector                   = lookup(spec.value, "node_selector", null)
           node_name                       = lookup(spec.value, "node_name", null)
 
+          dynamic "image_pull_secrets" {
+            for_each = try([for k, v in spec.value : v if k == "image_pull_secrets"], [])
+
+            content {
+              name = image_pull_secrets.value
+            }
+          }
+
           dynamic "init_container" {
             for_each = try(spec.value["podspec"].init_containers, {})
 
@@ -71,7 +79,16 @@ resource "kubernetes_deployment" "application" {
                 for_each = try(init_container.value["env"], {})
 
                 content {
-                  name = lookup(env.value, "name")
+                  name  = lookup(env.value, "name")
+                  value = lookup(env.value, "value")
+
+                  dynamic "value_from" {
+                    for_each = try(env.value["value_from"], {})
+
+                    content {
+
+                    }
+                  }
                 }
               }
 
@@ -93,19 +110,68 @@ resource "kubernetes_deployment" "application" {
               image             = container.value["image"]
               image_pull_policy = lookup(container.value, "image_pull_policy", null)
 
-              dynamic "liveness_probe" {
-                for_each = try(container.value["liveness_probe"], {})
+              liveness_probe {
+                failure_threshold     = try(lookup(lookup(container.value, "liveness_probe"), "failure_threshold"), null)
+                initial_delay_seconds = try(lookup(lookup(container.value, "liveness_probe"), "initial_delay_seconds"), null)
+                period_seconds        = try(lookup(lookup(container.value, "liveness_probe"), "period_seconds"), null)
+                success_threshold     = try(lookup(lookup(container.value, "liveness_probe"), "success_threshold"), null)
+                timeout_seconds       = try(lookup(lookup(container.value, "liveness_probe"), "timeout_seonds"), null)
 
-                content {
+                dynamic "http_get" {
+                  for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "http_get" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
 
+                  content {
+                    path = lookup(http_get.value, "path", null)
+                    port = lookup(http_get.value, "port", null)
+                  }
+                }
+
+                dynamic "tcp_socket" {
+                  for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "tcp_socket" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
+
+                  content {
+                    port = lookup(tcp_socket.value, "port", null)
+                  }
+                }
+
+                dynamic "exec" {
+                  for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "exec" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
+
+                  content {
+                    command = lookup(exec.value, "command", null)
+                  }
                 }
               }
 
-              dynamic "readiness_probe" {
-                for_each = try(container.value["readiness_probe"], {})
+              readiness_probe {
+                failure_threshold     = try(lookup(lookup(container.value, "readiness_probe"), "failure_threshold"), null)
+                initial_delay_seconds = try(lookup(lookup(container.value, "readiness_probe"), "initial_delay_seconds"), null)
+                period_seconds        = try(lookup(lookup(container.value, "readiness_probe"), "period_seconds"), null)
+                success_threshold     = try(lookup(lookup(container.value, "readiness_probe"), "success_threshold"), null)
+                timeout_seconds       = try(lookup(lookup(container.value, "readiness_probe"), "timeout_seonds"), null)
 
-                content {
+                dynamic "http_get" {
+                  for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "http_get" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+                  content {
+                    path = lookup(http_get.value, "path", null)
+                    port = lookup(http_get.value, "port", null)
+                  }
+                }
 
+                dynamic "tcp_socket" {
+                  for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "tcp_socket" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+
+                  content {
+                    port = lookup(tcp_socket.value, "port", null)
+                  }
+                }
+
+                dynamic "exec" {
+                  for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "exec" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+
+                  content {
+                    command = lookup(exec.value, "command", null)
+                  }
                 }
               }
 
@@ -113,7 +179,14 @@ resource "kubernetes_deployment" "application" {
                 for_each = try(container.value["resources"], {})
 
                 content {
-
+                  limits = {
+                    cpu    = lookup(resources.value.limits, "cpu", null)
+                    memory = lookup(resources.value.limits, "memory", null)
+                  }
+                  requests = {
+                    cpu    = lookup(resources.value.requests, "cpu", null)
+                    memory = lookup(resources.value.requests, "memory", null)
+                  }
                 }
               }
 
@@ -145,12 +218,59 @@ resource "kubernetes_deployment" "application" {
             }
           }
 
+          # https://cloud.google.com/kubernetes-engine/docs/concepts/volumes
           dynamic "volume" {
-            for_each = try(spec.value["volumes"], {})
+            for_each = try(spec.value.podspec.volumes, {})
 
             content {
-              name = lookup(volume.value, "name", null)
+              name = lookup(volume.value, "name")
+              dynamic "config_map" {
+                for_each = try(length(keys(lookup(volume.value, "config_map", {}))) != 0 ? [{ for k, v in volume.value.config_map : k => v }] : [], {})
 
+                content {
+                  default_mode = lookup(config_map.value, "default_mode", null)
+                  # items = [] #lookup(config_map.value, "items", null)
+                  optional = lookup(config_map.value, "optional", null)
+                  name     = lookup(config_map.value, "name", null)
+                }
+              }
+
+              dynamic "downward_api" {
+                for_each = try(length(keys(lookup(volume.value, "downward_api", {}))) != 0 ? [{ for k, v in volume.value.downward_api : k => v }] : [], {})
+
+                content {
+                  default_mode = lookup(downward_api.value, "default_mode", null)
+                  # items = lookup(downward_api.value, "items", null)
+                }
+              }
+
+              dynamic "empty_dir" {
+                for_each = try(length(keys(lookup(volume.value, "empty_dir", {}))) != 0 ? [{ for k, v in volume.value.empty_dir : k => v }] : [], {})
+
+                content {
+                  medium     = lookup(empty_dir.value, "medium", null)
+                  size_limit = lookup(empty_dir.value, "size_limit", null)
+                }
+              }
+
+              dynamic "persistent_volume_claim" {
+                for_each = try(length(keys(lookup(volume.value, "persistent_volume_claim", {}))) != 0 ? [{ for k, v in volume.value.persistent_volume_claim : k => v }] : [], {})
+                content {
+                  claim_name = lookup(persistent_volume_claim.value, "claim_name", null)
+                  read_only  = lookup(persistent_volume_claim.value, "read_only", null)
+                }
+              }
+
+              # dynamic "secret" {
+              #   for_each = try(length(keys(lookup(volume.value, "secret", {}))) != 0 ? [{ for k,v in volume.value.secret : k => v }] : [], {})
+
+              #   content {
+              #     default_mode = lookup(secret.value, "default_mode", null)
+              #     items = [{ for k, v in something : k => v }]
+              #     optional = lookup(secret.value, "optional", null)
+              #     secret_name = lookup(secret.value, "secret_name", null)
+              #   }
+              # }
             }
           }
         }

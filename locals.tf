@@ -3,6 +3,7 @@ locals {
   hpa_enabled           = can(coalesce(var.hpa_spec))
   ingress_enabled       = can(coalesce(var.ingress_spec))
   pdb_enabled           = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
+  pvc_enabled           = length(var.persistent_volume_claim_spec) == 0 ? false : true
   configmap_data        = try(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data), {})
   configmap_binary_data = try(merge({ for k, v in var.configmap_data : k => {} }, var.configmap_binary_data), {})
   secret_data           = try(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data), {})
@@ -60,6 +61,13 @@ locals {
     merge(local.standard_metadata[0], {
       labels      = try(merge(var.common_labels, { app = var.app_name }, var.pod_disruption_budget_labels), {})
       annotations = try(merge(var.pod_disruption_budget_annotations, var.common_annotations, {}))
+    })
+  ]
+
+  pvc_metadata = [
+    merge(local.standard_metadata[0], {
+      labels      = try(merge(var.common_labels, { app = var.app_name }, var.persistent_volume_claim_labels), {})
+      annotations = try(merge(var.persistent_volume_claim_annotations, var.common_annotations, {}))
     })
   ]
 

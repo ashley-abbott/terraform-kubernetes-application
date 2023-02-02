@@ -195,6 +195,30 @@ variable "pod_disruption_budget_annotations" {
   default     = {}
 }
 
+# Persistent Volume Claim
+variable "persistent_volume_claim_spec" {
+  type = list(object({
+    access_modes       = optional(list(string))
+    storage_request    = optional(string)
+    storage_class_name = optional(string)
+    volume_name        = optional(string)
+  }))
+  description = "(optional) describe your variable"
+  default     = []
+}
+
+variable "persistent_volume_claim_labels" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
+variable "persistent_volume_claim_annotations" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = {}
+}
+
 # Common 
 variable "common_labels" {
   type        = map(any)
