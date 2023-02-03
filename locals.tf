@@ -60,14 +60,14 @@ locals {
   pdb_metadata = [
     merge(local.standard_metadata[0], {
       labels      = try(merge(var.common_labels, { app = var.app_name }, var.pod_disruption_budget_labels), {})
-      annotations = try(merge(var.pod_disruption_budget_annotations, var.common_annotations, {}))
+      annotations = try(merge(var.pod_disruption_budget_annotations, var.common_annotations), {})
     })
   ]
 
   pvc_metadata = [
     merge(local.standard_metadata[0], {
       labels      = try(merge(var.common_labels, { app = var.app_name }, var.persistent_volume_claim_labels), {})
-      annotations = try(merge(var.persistent_volume_claim_annotations, var.common_annotations, {}))
+      annotations = try(merge(var.persistent_volume_claim_annotations, var.common_annotations), {})
     })
   ]
 
