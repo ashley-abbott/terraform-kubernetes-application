@@ -31,11 +31,11 @@ resource "kubernetes_deployment" "application" {
         type = lookup(spec.value, "strategy_type", null)
 
         dynamic "rolling_update" {
-          for_each = try(spec.value["rolling_update"], {})
+          for_each = lookup(spec.value, "strategy_type", "empty") == "empty" ? [{ for k, v in try(spec.value.rolling_update, {}) : k => v }] : []
 
           content {
-            max_surge       = rolling_update.value["max_surge"]
-            max_unavailable = rolling_update.value["max_unavailable"]
+            max_surge       = lookup(rolling_update.value, "max_surge", null)
+            max_unavailable = lookup(rolling_update.value, "max_unavailable", null)
           }
         }
       }
@@ -152,6 +152,7 @@ resource "kubernetes_deployment" "application" {
 
                 dynamic "http_get" {
                   for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "http_get" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+                  
                   content {
                     path = lookup(http_get.value, "path", null)
                     port = lookup(http_get.value, "port", null)
@@ -213,6 +214,9 @@ resource "kubernetes_deployment" "application" {
                 content {
                   name       = lookup(mount.value, "name")
                   mount_path = lookup(mount.value, "mount_path")
+                  read_only = lookup(mount.value, "read_only", null)
+                  sub_path = lookup(mount.value, "sub_path", null)
+                  mount_propagation = lookup(mount.value, "mount_propagation", null)
                 }
               }
             }
