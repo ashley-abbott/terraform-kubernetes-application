@@ -1,6 +1,6 @@
 locals {
   service_selector      = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
-  hpa_enabled           = can(coalesce(var.hpa_spec))
+  hpa_enabled           = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
   ingress_enabled       = can(coalesce(var.ingress_spec))
   pdb_enabled           = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
   pvc_enabled           = length(var.persistent_volume_claim_spec) == 0 ? false : true
@@ -74,7 +74,7 @@ locals {
 
   hpa_spec = [
     {
-      max_replicas                      = var.max_replicas
+      max_replicas                      = try(var.max_replicas, 1)
       min_replicas                      = try(var.min_replicas, null)
       target_cpu_utilization_percentage = try(var.target_cpu_utilization_percentage, null)
     }

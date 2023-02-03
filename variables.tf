@@ -42,7 +42,7 @@ variable "service_spec" {
       node_port   = optional(number)
     }))
   }))
-  description = ""
+  description = "All possible arguments for the [Service spec](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_v1), the only required parameters are `ports = [{ \"port\" = <port-number> }]"
 }
 
 # Deployment
@@ -83,12 +83,6 @@ variable "hpa_annotations" {
   default     = {}
 }
 
-variable "hpa_spec" {
-  type        = any
-  description = "(optional) describe your variable"
-  default     = null
-}
-
 variable "min_replicas" {
   type        = number
   description = "(optional) Minimum amount of replicas that you desire for the Horizontal Pod Autoscaler object"
@@ -98,12 +92,12 @@ variable "min_replicas" {
 variable "max_replicas" {
   type        = number
   description = "(optional) Maximum amount of replicas that you desire for the Horizontal Pod Autoscaler object"
-  default     = 1
+  default     = null
 }
 
 variable "target_cpu_utilization_percentage" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "(optional) Target average CPU utilization (represented as a percentage of requested CPU) over all the pods"
   default     = null
 }
 
@@ -179,13 +173,13 @@ variable "secret_annotations" {
 # Pod Disruption Budget
 variable "pod_disruption_budget_max_unavailable" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "(optional) Specifies the number of pods from the selected set that can be unavailable after the eviction. It can be either an absolute number or a percentage. You can specify only one of max_unavailable and min_available in a single Pod Disruption Budget"
   default     = null
 }
 
 variable "pod_disruption_budget_min_available" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "(optional) Specifies the number of pods from the selected set that must still be available after the eviction, even in the absence of the evicted pod. min_available can be either an absolute number or a percentage. You can specify only one of min_available and max_unavailable in a single Pod Disruption Budget"
   default     = null
 }
 
@@ -209,7 +203,7 @@ variable "persistent_volume_claim_spec" {
     storage_class_name = optional(string)
     volume_name        = optional(string)
   }))
-  description = "(optional) describe your variable"
+  description = "(optional) Conditionally create a [PersistentVolumeClaim](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/persistent_volume_claim_v1#spec), if this variable isn't populated the PVC is skipped "
   default     = []
 }
 
