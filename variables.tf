@@ -63,7 +63,7 @@ variable "deployment_spec" {
   description = <<-EOF
   Includes both Replication Controller Spec and Pod Spec, this variable is set to type `any` to allow as many or as few attributes as you desire, defaulting to the resource defaults when omitted.
 
-  The attribute `strategy { type }` is defined as `strategy_type` for brevity see [k8s_deployment.tf](./k8s_deployment.tf?#31)
+  The attribute `strategy { type }` is defined as `strategy_type` for brevity see [k8s_deployment.tf](./k8s_deployment.tf#L31)
 
   For reference: https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/deployment#spec
   EOF
