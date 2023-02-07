@@ -13,8 +13,10 @@ resource "kubernetes_secret" "application" {
   }
 
   # Check if variable isn't null then iterate through map
-  data = (local.secret_data != {}) ? { for key, value in local.secret_data[each.key] : key => value } : {}
+  data = (local.secret_data != {}) ? { for key, value in local.secret_data[each.key] : key => value if ! (key == "type") } : {}
 
   # Check if variable isn't null then iterate through map, B64 encoding the values 
-  binary_data = (local.secret_binary_data != {}) ? { for key, value in local.secret_binary_data[each.key] : key => base64encode(value) } : {}
+  binary_data = (local.secret_binary_data != {}) ? { for key, value in local.secret_binary_data[each.key] : key => base64encode(value) if ! (key == "type") } : {}
+
+  type = try(lookup(each.value, "type"), null)
 }

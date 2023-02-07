@@ -6,8 +6,8 @@ locals {
   pvc_enabled           = length(var.persistent_volume_claim_spec) == 0 ? false : true
   configmap_data        = try(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data), {})
   configmap_binary_data = try(merge({ for k, v in var.configmap_data : k => {} }, var.configmap_binary_data), {})
-  secret_data           = try(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data), {})
-  secret_binary_data    = try(merge({ for k, v in var.secret_data : k => {} }, var.secret_binary_data), {})
+  secret_data           = try(merge({ for k, v in var.secret_binary_data : k => { "type" = v["type"] }}, var.secret_data), {})
+  secret_binary_data    = try(merge({ for k, v in var.secret_data : k => { "type" = v["type"] }}, var.secret_binary_data), {})
   service_accounts      = try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), {})
 
   standard_metadata = [{
