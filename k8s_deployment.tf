@@ -110,68 +110,76 @@ resource "kubernetes_deployment" "application" {
               image             = container.value["image"]
               image_pull_policy = lookup(container.value, "image_pull_policy", null)
 
-              liveness_probe {
-                failure_threshold     = try(lookup(lookup(container.value, "liveness_probe"), "failure_threshold"), null)
-                initial_delay_seconds = try(lookup(lookup(container.value, "liveness_probe"), "initial_delay_seconds"), null)
-                period_seconds        = try(lookup(lookup(container.value, "liveness_probe"), "period_seconds"), null)
-                success_threshold     = try(lookup(lookup(container.value, "liveness_probe"), "success_threshold"), null)
-                timeout_seconds       = try(lookup(lookup(container.value, "liveness_probe"), "timeout_seonds"), null)
+              dynamic "liveness_probe" {
+                for_each = try([for k in keys(container.value) : k if k == "liveness_probe"], [])
 
-                dynamic "http_get" {
-                  for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "http_get" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
+                content {
+                  failure_threshold     = try(lookup(lookup(container.value, "liveness_probe"), "failure_threshold"), null)
+                  initial_delay_seconds = try(lookup(lookup(container.value, "liveness_probe"), "initial_delay_seconds"), null)
+                  period_seconds        = try(lookup(lookup(container.value, "liveness_probe"), "period_seconds"), null)
+                  success_threshold     = try(lookup(lookup(container.value, "liveness_probe"), "success_threshold"), null)
+                  timeout_seconds       = try(lookup(lookup(container.value, "liveness_probe"), "timeout_seconds"), null)
 
-                  content {
-                    path = lookup(http_get.value, "path", null)
-                    port = lookup(http_get.value, "port", null)
+                  dynamic "http_get" {
+                    for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "http_get" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
+
+                    content {
+                      path = lookup(http_get.value, "path", null)
+                      port = lookup(http_get.value, "port", null)
+                    }
                   }
-                }
 
-                dynamic "tcp_socket" {
-                  for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "tcp_socket" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
+                  dynamic "tcp_socket" {
+                    for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "tcp_socket" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
 
-                  content {
-                    port = lookup(tcp_socket.value, "port", null)
+                    content {
+                      port = lookup(tcp_socket.value, "port", null)
+                    }
                   }
-                }
 
-                dynamic "exec" {
-                  for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "exec" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
+                  dynamic "exec" {
+                    for_each = try(lookup(lookup(container.value, "liveness_probe"), "type") == "exec" ? [{ for k, v in container.value.liveness_probe : k => v if !(k == "type") }] : [], {})
 
-                  content {
-                    command = lookup(exec.value, "command", null)
+                    content {
+                      command = lookup(exec.value, "command", null)
+                    }
                   }
                 }
               }
 
-              readiness_probe {
-                failure_threshold     = try(lookup(lookup(container.value, "readiness_probe"), "failure_threshold"), null)
-                initial_delay_seconds = try(lookup(lookup(container.value, "readiness_probe"), "initial_delay_seconds"), null)
-                period_seconds        = try(lookup(lookup(container.value, "readiness_probe"), "period_seconds"), null)
-                success_threshold     = try(lookup(lookup(container.value, "readiness_probe"), "success_threshold"), null)
-                timeout_seconds       = try(lookup(lookup(container.value, "readiness_probe"), "timeout_seonds"), null)
+              dynamic "readiness_probe" {
+                for_each = try([for k in keys(container.value) : k if k == "readiness_probe"], [])
 
-                dynamic "http_get" {
-                  for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "http_get" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
-                  
-                  content {
-                    path = lookup(http_get.value, "path", null)
-                    port = lookup(http_get.value, "port", null)
+                content {
+                  failure_threshold     = try(lookup(lookup(container.value, "readiness_probe"), "failure_threshold"), null)
+                  initial_delay_seconds = try(lookup(lookup(container.value, "readiness_probe"), "initial_delay_seconds"), null)
+                  period_seconds        = try(lookup(lookup(container.value, "readiness_probe"), "period_seconds"), null)
+                  success_threshold     = try(lookup(lookup(container.value, "readiness_probe"), "success_threshold"), null)
+                  timeout_seconds       = try(lookup(lookup(container.value, "readiness_probe"), "timeout_seconds"), null)
+
+                  dynamic "http_get" {
+                    for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "http_get" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+
+                    content {
+                      path = lookup(http_get.value, "path", null)
+                      port = lookup(http_get.value, "port", null)
+                    }
                   }
-                }
 
-                dynamic "tcp_socket" {
-                  for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "tcp_socket" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+                  dynamic "tcp_socket" {
+                    for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "tcp_socket" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
 
-                  content {
-                    port = lookup(tcp_socket.value, "port", null)
+                    content {
+                      port = lookup(tcp_socket.value, "port", null)
+                    }
                   }
-                }
 
-                dynamic "exec" {
-                  for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "exec" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
+                  dynamic "exec" {
+                    for_each = try(lookup(lookup(container.value, "readiness_probe"), "type") == "exec" ? [{ for k, v in container.value.readiness_probe : k => v if !(k == "type") }] : [], {})
 
-                  content {
-                    command = lookup(exec.value, "command", null)
+                    content {
+                      command = lookup(exec.value, "command", null)
+                    }
                   }
                 }
               }
@@ -212,10 +220,10 @@ resource "kubernetes_deployment" "application" {
                 for_each = try(container.value["volume_mount"], {})
                 iterator = mount
                 content {
-                  name       = lookup(mount.value, "name")
-                  mount_path = lookup(mount.value, "mount_path")
-                  read_only = lookup(mount.value, "read_only", null)
-                  sub_path = lookup(mount.value, "sub_path", null)
+                  name              = lookup(mount.value, "name")
+                  mount_path        = lookup(mount.value, "mount_path")
+                  read_only         = lookup(mount.value, "read_only", null)
+                  sub_path          = lookup(mount.value, "sub_path", null)
                   mount_propagation = lookup(mount.value, "mount_propagation", null)
                 }
               }
