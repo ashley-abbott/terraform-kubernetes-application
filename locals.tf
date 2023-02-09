@@ -4,10 +4,8 @@ locals {
   ingress_enabled       = can(coalesce(var.ingress_spec))
   pdb_enabled           = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
   pvc_enabled           = length(var.persistent_volume_claim_spec) == 0 ? false : true
-  configmap_data        = try(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data), {})
-  configmap_binary_data = try(merge({ for k, v in var.configmap_data : k => {} }, var.configmap_binary_data), {})
-  secret_data           = try(merge({ for k, v in var.secret_binary_data : k => { "type" = v["type"] }}, var.secret_data), {})
-  secret_binary_data    = try(merge({ for k, v in var.secret_data : k => { "type" = v["type"] }}, var.secret_binary_data), {})
+  configmap_data        = { for I in keys(merge({ for k,v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
+  secret_data           = { for I in keys(merge({ for k,v in var.secret_binary_data : k => {} }, var.secret_data)) : I => { binary = try(var.secret_binary_data[I], {}), data = try(var.secret_data[I], {}) } }
   service_accounts      = try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), {})
 
   standard_metadata = [{

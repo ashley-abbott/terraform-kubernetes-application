@@ -15,7 +15,7 @@ resource "kubernetes_service_account_v1" "application" {
   }
 
   secret {
-    name = "meh"
+    name = "${each.key}-sa-token"
   }
 
   automount_service_account_token = true
