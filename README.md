@@ -41,9 +41,12 @@ module "k8s-application" {
 	 ingress_spec  = null
 	 max_replicas  = null
 	 min_replicas  = null
+	 node_affinity  = {}
 	 persistent_volume_claim_annotations  = {}
 	 persistent_volume_claim_labels  = {}
 	 persistent_volume_claim_spec  = []
+	 pod_affinity  = {}
+	 pod_anti_affinity  = {}
 	 pod_disruption_budget_annotations  = {}
 	 pod_disruption_budget_labels  = {}
 	 pod_disruption_budget_max_unavailable  = null
@@ -95,9 +98,12 @@ module "k8s-application" {
 | <a name="input_max_replicas"></a> [max\_replicas](#input\_max\_replicas) | (optional) Maximum amount of replicas that you desire for the Horizontal Pod Autoscaler object | `number` | `null` | no |
 | <a name="input_min_replicas"></a> [min\_replicas](#input\_min\_replicas) | (optional) Minimum amount of replicas that you desire for the Horizontal Pod Autoscaler object | `number` | `null` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace in which you want all your resources to be deployed | `string` | n/a | yes |
+| <a name="input_node_affinity"></a> [node\_affinity](#input\_node\_affinity) | n/a | `any` | `{}` | no |
 | <a name="input_persistent_volume_claim_annotations"></a> [persistent\_volume\_claim\_annotations](#input\_persistent\_volume\_claim\_annotations) | (optional) Additional labels that you require for the PersistentVolumeClaim object | `map(string)` | `{}` | no |
 | <a name="input_persistent_volume_claim_labels"></a> [persistent\_volume\_claim\_labels](#input\_persistent\_volume\_claim\_labels) | (optional) Additional labels that you require for the PersistentVolumeClaim object | `map(string)` | `{}` | no |
 | <a name="input_persistent_volume_claim_spec"></a> [persistent\_volume\_claim\_spec](#input\_persistent\_volume\_claim\_spec) | (optional) Conditionally create a [PersistentVolumeClaim](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/persistent_volume_claim_v1#spec), if this variable isn't populated the PVC is skipped | <pre>list(object({<br>    access_modes       = optional(list(string))<br>    storage_request    = optional(string)<br>    storage_class_name = optional(string)<br>    volume_name        = optional(string)<br>  }))</pre> | `[]` | no |
+| <a name="input_pod_affinity"></a> [pod\_affinity](#input\_pod\_affinity) | n/a | `any` | `{}` | no |
+| <a name="input_pod_anti_affinity"></a> [pod\_anti\_affinity](#input\_pod\_anti\_affinity) | n/a | `any` | `{}` | no |
 | <a name="input_pod_disruption_budget_annotations"></a> [pod\_disruption\_budget\_annotations](#input\_pod\_disruption\_budget\_annotations) | (optional) Additional annotations that you require for the PodDisruptionBudget object | `map(string)` | `{}` | no |
 | <a name="input_pod_disruption_budget_labels"></a> [pod\_disruption\_budget\_labels](#input\_pod\_disruption\_budget\_labels) | (optional) Additional labels that you require for the PodDisruptionBudget object | `map(string)` | `{}` | no |
 | <a name="input_pod_disruption_budget_max_unavailable"></a> [pod\_disruption\_budget\_max\_unavailable](#input\_pod\_disruption\_budget\_max\_unavailable) | (optional) Specifies the number of pods from the selected set that can be unavailable after the eviction. It can be either an absolute number or a percentage. You can specify only one of max\_unavailable and min\_available in a single Pod Disruption Budget | `string` | `null` | no |

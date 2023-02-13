@@ -58,6 +58,171 @@ resource "kubernetes_deployment" "application" {
           node_selector                   = lookup(spec.value, "node_selector", null)
           node_name                       = lookup(spec.value, "node_name", null)
 
+          dynamic "affinity" {
+            for_each = local.affinity_enabled
+
+            content {
+              dynamic "node_affinity" {
+                for_each = length(var.node_affinity) > 0 ? ["node_affinity"] : []
+
+                content {
+                  dynamic "preferred_during_scheduling_ignored_during_execution" {
+                    for_each = { for v in lookup(var.node_affinity, "preferred_during_scheduling_ignored_during_execution", []) : "pside" => v }
+
+                    content {
+                      weight = preferred_during_scheduling_ignored_during_execution.value["weight"]
+                      preference {
+                        dynamic "match_expressions" {
+                          for_each = { for v in lookup(preferred_during_scheduling_ignored_during_execution.value["preference"], "match_expressions", []) : "match_exp" => v }
+
+                          content {
+                            key      = match_expressions.value["key"]
+                            operator = match_expressions.value["operator"]
+                            values   = lookup(match_expressions.value, "values", [])
+                          }
+                        }
+                      }
+                    }
+                  }
+
+                  dynamic "required_during_scheduling_ignored_during_execution" {
+                    for_each = { for v in lookup(var.node_affinity, "required_during_scheduling_ignored_during_execution", []) : "rdside" => v }
+
+                    content {
+                      dynamic "node_selector_term" {
+                        for_each = { for v in lookup(required_during_scheduling_ignored_during_execution.value, "node_selector_term", []) : "node_selector_term" => v }
+
+                        content {
+                          dynamic "match_expressions" {
+                            for_each = { for v in lookup(node_selector_term.value, "match_expressions", []) : "match_exp" => v }
+
+                            content {
+                              key      = match_expressions.value["key"]
+                              operator = match_expressions.value["operator"]
+                              values   = lookup(match_expressions.value, "values", [])
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              dynamic "pod_affinity" {
+                for_each = length(var.pod_affinity) > 0 ? ["pod_affinity"] : []
+
+                content {
+                  dynamic "preferred_during_scheduling_ignored_during_execution" {
+                    for_each = { for v in lookup(var.pod_affinity, "preferred_during_scheduling_ignored_during_execution", []) : "pdside" => v }
+
+                    content {
+                      weight = preferred_during_scheduling_ignored_during_execution.value["weight"]
+
+                      pod_affinity_term {
+                        namespaces   = lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"], "namespaces", [])
+                        topology_key = lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"], "topology_key", "")
+
+                        label_selector {
+                          match_labels = lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"]["label_selector"], "match_labels", {})
+
+                          dynamic "match_expressions" {
+                            for_each = { for v in lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"]["label_selector"], "match_expressions", []) : "match_exp" => v }
+
+                            content {
+                              key      = match_expressions.value["key"]
+                              operator = match_expressions.value["operator"]
+                              values   = lookup(match_expressions.value, "values", [])
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+
+                  dynamic "required_during_scheduling_ignored_during_execution" {
+                    for_each = { for v in lookup(var.pod_affinity, "required_during_scheduling_ignored_during_execution", []) : "rdside" => v }
+
+                    content {
+                      namespaces   = lookup(required_during_scheduling_ignored_during_execution.value, "namespaces", [])
+                      topology_key = lookup(required_during_scheduling_ignored_during_execution.value, "topology_key", "")
+
+                      label_selector {
+                        match_labels = lookup(required_during_scheduling_ignored_during_execution.value["label_selector"], "match_labels", {})
+
+                        dynamic "match_expressions" {
+                          for_each = { for v in lookup(required_during_scheduling_ignored_during_execution.value["label_selector"], "match_expressions", []) : "match_exp" => v }
+
+                          content {
+                            key      = match_expressions.value["key"]
+                            operator = match_expressions.value["operator"]
+                            values   = lookup(match_expressions.value, "values", [])
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              dynamic "pod_anti_affinity" {
+                for_each = length(var.pod_anti_affinity) > 0 ? ["pod_anti_affinity"] : []
+
+                content {
+                  dynamic "preferred_during_scheduling_ignored_during_execution" {
+                    for_each = { for v in lookup(var.pod_anti_affinity, "preferred_during_scheduling_ignored_during_execution", []) : "pdside" => v }
+
+                    content {
+                      weight = preferred_during_scheduling_ignored_during_execution.value["weight"]
+
+                      pod_affinity_term {
+                        namespaces   = lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"], "namespaces", [])
+                        topology_key = lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"], "topology_key", "")
+
+                        label_selector {
+                          match_labels = lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"]["label_selector"], "match_labels", {})
+
+                          dynamic "match_expressions" {
+                            for_each = { for v in lookup(preferred_during_scheduling_ignored_during_execution.value["pod_affinity_term"]["label_selector"], "match_expressions", []) : "match_exp" => v }
+
+                            content {
+                              key      = match_expressions.value["key"]
+                              operator = match_expressions.value["operator"]
+                              values   = lookup(match_expressions.value, "values", [])
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+
+                  dynamic "required_during_scheduling_ignored_during_execution" {
+                    for_each = { for v in lookup(var.pod_anti_affinity, "required_during_scheduling_ignored_during_execution", []) : "rdside" => v }
+
+                    content {
+                      namespaces   = lookup(required_during_scheduling_ignored_during_execution.value, "namespaces", [])
+                      topology_key = lookup(required_during_scheduling_ignored_during_execution.value, "topology_key", "")
+
+                      label_selector {
+                        match_labels = lookup(required_during_scheduling_ignored_during_execution.value["label_selector"], "match_labels", {})
+
+                        dynamic "match_expressions" {
+                          for_each = { for v in lookup(required_during_scheduling_ignored_during_execution.value["label_selector"], "match_expressions", []) : "match_exp" => v }
+
+                          content {
+                            key      = match_expressions.value["key"]
+                            operator = match_expressions.value["operator"]
+                            values   = lookup(match_expressions.value, "values", [])
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
           dynamic "image_pull_secrets" {
             for_each = try([for k, v in spec.value : v if k == "image_pull_secrets"], [])
 

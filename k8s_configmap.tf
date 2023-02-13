@@ -12,6 +12,6 @@ resource "kubernetes_config_map" "application" {
     }
   }
 
-  data = lookup(each.value, "data", {}) != {} ? { for k,v in try(each.value.data, {}) : k => v } : {}
-  binary_data = lookup(each.value, "binary", {}) != {} ? { for k,v in try(each.value.binary, {}) : k => base64encode(v) } : {}
+  data        = lookup(each.value, "data", {}) != {} ? { for k, v in try(each.value.data, {}) : k => v } : {}
+  binary_data = lookup(each.value, "binary", {}) != {} ? { for k, v in try(each.value.binary, {}) : k => base64encode(v) } : {}
 }

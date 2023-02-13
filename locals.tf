@@ -1,12 +1,14 @@
 locals {
-  service_selector      = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
-  hpa_enabled           = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
-  ingress_enabled       = can(coalesce(var.ingress_spec))
-  pdb_enabled           = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
-  pvc_enabled           = length(var.persistent_volume_claim_spec) == 0 ? false : true
-  configmap_data        = { for I in keys(merge({ for k,v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
-  secret_data           = { for I in keys(merge({ for k,v in var.secret_binary_data : k => {} }, var.secret_data)) : I => { binary = try(var.secret_binary_data[I], {}), data = try(var.secret_data[I], {}) } }
-  service_accounts      = try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), {})
+  service_selector = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
+  hpa_enabled      = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
+  ingress_enabled  = can(coalesce(var.ingress_spec))
+  pdb_enabled      = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
+  pvc_enabled      = length(var.persistent_volume_claim_spec) == 0 ? false : true
+  # affinity         = merge({ "node_affinity" = { for k, v in var.node_affinity : k => v } }, { "pod_affinity" = { for k, v in var.pod_affinity : k => v } }, { "pod_anti_affinity" = { for k, v in var.pod_anti_affinity : k => v } })
+  affinity_enabled = length(var.node_affinity) > 0 || length(var.pod_affinity) > 0 || length(var.pod_anti_affinity) > 0 ? ["affinity"] : []
+  configmap_data   = { for I in keys(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
+  secret_data      = { for I in keys(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data)) : I => { binary = try(var.secret_binary_data[I], {}), data = try(var.secret_data[I], {}) } }
+  service_accounts = try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), {})
 
   standard_metadata = [{
     name      = var.app_name
