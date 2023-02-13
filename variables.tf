@@ -70,6 +70,21 @@ variable "deployment_spec" {
   default     = [{}]
 }
 
+variable "node_affinity" {
+  type    = any
+  default = {}
+}
+
+variable "pod_affinity" {
+  type    = any
+  default = {}
+}
+
+variable "pod_anti_affinity" {
+  type    = any
+  default = {}
+}
+
 # HPA
 variable "hpa_labels" {
   type        = map(string)
