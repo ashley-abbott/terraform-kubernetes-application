@@ -245,13 +245,50 @@ resource "kubernetes_deployment" "application" {
 
                 content {
                   name  = lookup(env.value, "name")
-                  value = lookup(env.value, "value")
+                  value = lookup(env.value, "value", null)
 
                   dynamic "value_from" {
                     for_each = try(env.value["value_from"], {})
 
                     content {
+                      dynamic "config_map_key_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "config_map_key_ref"], [])
 
+                        content {
+                          key      = lookup(config_map_key_ref.value, "key", null)
+                          name     = lookup(config_map_key_ref.value, "name", null)
+                          optional = lookup(config_map_key_ref.value, "optional", null)
+                        }
+                      }
+
+                      dynamic "field_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "field_ref"], [])
+
+                        content {
+                          api_version = lookup(field_ref.value, "api_version", null)
+                          field_path  = lookup(field_ref.value, "field_path", null)
+                        }
+                      }
+
+                      dynamic "resource_field_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "resource_field_ref"], [])
+
+                        content {
+                          container_name = lookup(resource_field_ref.value, "container_name", null)
+                          resource       = lookup(resource_field_ref.value, "resource", null)
+                          divisor        = lookup(resource_field_ref.value, "divisor", null)
+                        }
+                      }
+
+                      dynamic "secret_key_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "secret_key_ref"], [])
+
+                        content {
+                          key      = lookup(secret_key_ref.value, "key", null)
+                          name     = lookup(secret_key_ref.value, "name", null)
+                          optional = lookup(secret_key_ref.value, "optional", null)
+                        }
+                      }
                     }
                   }
                 }
@@ -261,10 +298,28 @@ resource "kubernetes_deployment" "application" {
                 for_each = try(init_container.value["env_from"], {})
 
                 content {
+                  dynamic "config_map_ref" {
+                    for_each = try([for k in keys(env_from.value) : k if k == "config_map_ref"], [])
+
+                    content {
+                      name     = lookup(config_map_ref.value, "name")
+                      optional = lookup(config_map_ref.value, "optional", null)
+                    }
+                  }
+
+                  dynamic "secret_ref" {
+                    for_each = try([for k in keys(env_from.value) : k if k == "secret_ref"], [])
+
+                    content {
+                      name     = lookup(secret_ref.value, "name")
+                      optional = lookup(secret_ref.value, "optional", null)
+                    }
+                  }
                 }
               }
             }
           }
+
           dynamic "container" {
             for_each = try(spec.value["podspec"].containers, {})
 
@@ -369,7 +424,52 @@ resource "kubernetes_deployment" "application" {
 
                 content {
                   name  = lookup(env.value, "name")
-                  value = lookup(env.value, "value")
+                  value = lookup(env.value, "value", null)
+
+                  dynamic "value_from" {
+                    for_each = try(lookup(env.value, "value_from"), {})
+
+                    content {
+                      dynamic "config_map_key_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "config_map_key_ref"], [])
+
+                        content {
+                          key      = lookup(config_map_key_ref.value, "key", null)
+                          name     = lookup(config_map_key_ref.value, "name", null)
+                          optional = lookup(config_map_key_ref.value, "optional", null)
+                        }
+                      }
+
+                      dynamic "field_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "field_ref"], [])
+
+                        content {
+                          api_version = lookup(field_ref.value, "api_version", null)
+                          field_path  = lookup(field_ref.value, "field_path", null)
+                        }
+                      }
+
+                      dynamic "resource_field_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "resource_field_ref"], [])
+
+                        content {
+                          container_name = lookup(resource_field_ref.value, "container_name", null)
+                          resource       = lookup(resource_field_ref.value, "resource", null)
+                          divisor        = lookup(resource_field_ref.value, "divisor", null)
+                        }
+                      }
+
+                      dynamic "secret_key_ref" {
+                        for_each = try([for k in keys(value_from.value) : k if k == "secret_key_ref"], [])
+
+                        content {
+                          key      = lookup(secret_key_ref.value, "key", null)
+                          name     = lookup(secret_key_ref.value, "name", null)
+                          optional = lookup(secret_key_ref.value, "optional", null)
+                        }
+                      }
+                    }
+                  }
                 }
               }
 
@@ -377,7 +477,23 @@ resource "kubernetes_deployment" "application" {
                 for_each = try(container.value["env_from"], {})
 
                 content {
+                  dynamic "config_map_ref" {
+                    for_each = try([for k in keys(env_from.value) : k if k == "config_map_ref"], [])
 
+                    content {
+                      name     = lookup(config_map_ref.value, "name")
+                      optional = lookup(config_map_ref.value, "optional", null)
+                    }
+                  }
+
+                  dynamic "secret_ref" {
+                    for_each = try([for k in keys(env_from.value) : k if k == "secret_ref"], [])
+
+                    content {
+                      name     = lookup(secret_ref.value, "name")
+                      optional = lookup(secret_ref.value, "optional", null)
+                    }
+                  }
                 }
               }
 
