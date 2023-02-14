@@ -5,3 +5,7 @@
 #     data.google_container_cluster.dev-cluster.master_auth[0].cluster_ca_certificate,
 #   )
 # }
+
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}

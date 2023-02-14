@@ -16,6 +16,8 @@ jobs:
         run: |
           shopt -s expand_aliases
           export alias kubectl='microk8s kubectl'
+          mkdir ~/.kube
+          kubectl config view --raw > ~/.kube/config
           kubectl get po -A
 
       - name: Run Terratest
