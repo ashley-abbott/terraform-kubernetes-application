@@ -58,6 +58,7 @@ module "k8s-application" {
 	 service_annotations  = {}
 	 service_labels  = {}
 	 target_cpu_utilization_percentage  = null
+	 use_existing_k8s_sa  = false
 }
 ```
 
@@ -116,6 +117,7 @@ module "k8s-application" {
 | <a name="input_service_labels"></a> [service\_labels](#input\_service\_labels) | (optional) Additional labels that you require for the Serivce object | `map(string)` | `{}` | no |
 | <a name="input_service_spec"></a> [service\_spec](#input\_service\_spec) | All possible arguments for the [Service spec](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_v1), the only required parameters are `ports = [{ "port" = <port-number> }]` | <pre>list(object({<br>    allocate_load_balancer_node_ports = optional(bool)<br>    cluster_ip                        = optional(string)<br>    cluster_ips                       = optional(list(string))<br>    external_ips                      = optional(list(string))<br>    external_name                     = optional(string)<br>    external_traffic_policy           = optional(string)<br>    internal_traffic_policy           = optional(string)<br>    load_balancer_ip                  = optional(string)<br>    session_affinity                  = optional(string)<br>    selector                          = optional(map(string))<br>    type                              = optional(string)<br>    ports = list(object({<br>      name         = optional(string)<br>      app_protocol = optional(string)<br>      port         = number<br>      target_port  = optional(number)<br>      protocol     = optional(string)<br>      node_port    = optional(number)<br>    }))<br>  }))</pre> | n/a | yes |
 | <a name="input_target_cpu_utilization_percentage"></a> [target\_cpu\_utilization\_percentage](#input\_target\_cpu\_utilization\_percentage) | (optional) Target average CPU utilization (represented as a percentage of requested CPU) over all the pods | `string` | `null` | no |
+| <a name="input_use_existing_k8s_sa"></a> [use\_existing\_k8s\_sa](#input\_use\_existing\_k8s\_sa) | (optional) Boolean used to control whether to utilise a pre existing K8s service account | `bool` | `false` | no |
 
 
 <!-- END_TF_DOCS -->
