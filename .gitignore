@@ -35,3 +35,5 @@ terraform.rc
 
 providers.tf
 !**/examples/**/providers.tf
+
+examples/**/.terraform.lock.hcl

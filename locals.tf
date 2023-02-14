@@ -8,7 +8,7 @@ locals {
   affinity_enabled = length(var.node_affinity) > 0 || length(var.pod_affinity) > 0 || length(var.pod_anti_affinity) > 0 ? ["affinity"] : []
   configmap_data   = { for I in keys(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
   secret_data      = { for I in keys(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data)) : I => { binary = try(var.secret_binary_data[I], {}), data = try(var.secret_data[I], {}) } }
-  service_accounts = var.use_existing_k8s_sa == true ? [] : try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), {})
+  service_accounts = (var.use_existing_k8s_sa == true) ? toset([]) : try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), toset([]))
 
   standard_metadata = [{
     name      = var.app_name
