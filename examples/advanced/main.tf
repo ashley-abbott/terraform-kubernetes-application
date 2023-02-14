@@ -1,7 +1,7 @@
 module "my_k8s_application" {
   source    = "../../"
   app_name  = "nginx"
-  namespace = "dev1"
+  namespace = "default"
 
   deployment_spec = [{
     replicas = 2

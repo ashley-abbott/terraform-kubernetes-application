@@ -12,9 +12,12 @@ jobs:
           channel: '1.25/stable'
           addons: '["dns"]'
 
-      - name: Alias 
-        run: alias kubectl='microk8s kubectl'
-        
+      - name: Alias & Validate
+        run: |
+          shopt -s expand_aliases
+          export alias kubectl='microk8s kubectl'
+          kubectl get po -A
+
       - name: Run Terratest
         uses: cloudposse/github-action-terratest@main
         with:
