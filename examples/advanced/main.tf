@@ -6,6 +6,14 @@ module "my_k8s_application" {
   deployment_spec = [{
     replicas = 2
     podspec = {
+      volumes = [
+        {
+          name = "credentials"
+          config_map = {
+            name = "nginx-credentials-config"
+          }
+        }
+      ]
       init_containers = [
         {
           name  = "init"
@@ -15,6 +23,33 @@ module "my_k8s_application" {
       containers = [
         {
           image = "nginx:latest"
+          liveness_probe = {
+            type = "tcp_socket"
+            port = "80"
+          }
+          readiness_probe = {
+            type = "http_get"
+            port = "80"
+            path = "/"
+          }
+          env = [
+            {
+              name = "DBPASSWORD"
+              value_from = {
+                secret_key_ref = {
+                  key = "db_password"
+                  name = "nginx-database"
+                }
+              }
+            }
+          ]
+          env_from = [
+            {
+              config_map_ref = {
+                name = "nginx-environment-config"
+              }
+            }
+          ]
           resources = [{
             limits = {
               cpu    = "100m"
@@ -25,6 +60,12 @@ module "my_k8s_application" {
               memory = "50M"
             }
           }]
+          volume_mount = [
+            {
+              name = "credentials"
+              mount_path = "/tmp/credentials"
+            }
+          ]
         },
         {
           name  = "sidecar"
@@ -44,7 +85,8 @@ module "my_k8s_application" {
   service_spec = [{
     ports = [
       {
-        "port" = 80
+        "port" = 80,
+        "app_protocol" = "http"
       },
       {
         "name"        = "something"
@@ -66,17 +108,24 @@ module "my_k8s_application" {
   }
 
   configmap_data = {
-    database = {
-      api_host = "myhost:443"
-      db_host  = "dbhost:3306"
-    },
     credentials = {
       username = "admin"
       password = "letmein"
+    },
+    environment = {
+      firstEnv  = "one"
+      secondEnv = "two"
+      thirdEnv  = "three"
     }
   }
 
-  configmap_binary_data = {
+  secret_data = {
+    database = {
+      db_host  = "dbhost:3306"
+    }
+  }
+
+  secret_binary_data = {
     database = {
       db_password = "changeme"
     }
