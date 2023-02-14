@@ -8,6 +8,12 @@ variable "namespace" {
   description = "The Kubernetes namespace in which you want all your resources to be deployed"
 }
 
+variable "use_existing_k8s_sa" {
+  type = bool
+  description = "(optional) Boolean used to control whether to utilise a pre existing K8s service account"
+  default = false
+}
+
 # Service
 variable "service_labels" {
   type        = map(string)
