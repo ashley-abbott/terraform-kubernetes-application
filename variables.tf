@@ -35,11 +35,12 @@ variable "service_spec" {
     selector                          = optional(map(string))
     type                              = optional(string)
     ports = list(object({
-      name        = optional(string)
-      port        = number
-      target_port = optional(number)
-      protocol    = optional(string)
-      node_port   = optional(number)
+      name         = optional(string)
+      app_protocol = optional(string)
+      port         = number
+      target_port  = optional(number)
+      protocol     = optional(string)
+      node_port    = optional(number)
     }))
   }))
   description = "All possible arguments for the [Service spec](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_v1), the only required parameters are `ports = [{ \"port\" = <port-number> }]"

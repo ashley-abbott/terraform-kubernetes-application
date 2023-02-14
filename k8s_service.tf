@@ -28,11 +28,12 @@ resource "kubernetes_service_v1" "application" {
         for_each = spec.value["ports"]
 
         content {
-          name        = try(lower(port.value["name"]), "${var.app_name}-${port.value["port"]}")
-          port        = port.value["port"]
-          target_port = try(port.value["target_port"], null)
-          protocol    = try(upper(port.value["protocol"]), null)
-          node_port   = try(port.value["node_port"], null)
+          name         = try(lower(port.value["name"]), "${var.app_name}-${port.value["port"]}")
+          app_protocol = try(port.value["app_protocol"], null)
+          port         = port.value["port"]
+          target_port  = try(port.value["target_port"], null)
+          protocol     = try(upper(port.value["protocol"]), null)
+          node_port    = try(port.value["node_port"], null)
         }
       }
     }
