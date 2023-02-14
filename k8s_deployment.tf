@@ -431,7 +431,7 @@ resource "kubernetes_deployment" "application" {
 
                     content {
                       dynamic "config_map_key_ref" {
-                        for_each = try([for k in keys(value_from.value) : k if k == "config_map_key_ref"], [])
+                        for_each = try(lookup(lookup(env.value, "value_from"), "config_map_key_ref", "empty") != "empty" ? [{ for k, v in env.value.value_from.config_map_key_ref : k => v }] : [], {})
 
                         content {
                           key      = lookup(config_map_key_ref.value, "key", null)
@@ -441,7 +441,7 @@ resource "kubernetes_deployment" "application" {
                       }
 
                       dynamic "field_ref" {
-                        for_each = try([for k in keys(value_from.value) : k if k == "field_ref"], [])
+                        for_each = try(lookup(lookup(env.value, "value_from"), "field_ref", "empty") != "empty" ? [{ for k, v in env.value.value_from.field_ref : k => v }] : [], {})
 
                         content {
                           api_version = lookup(field_ref.value, "api_version", null)
@@ -450,7 +450,7 @@ resource "kubernetes_deployment" "application" {
                       }
 
                       dynamic "resource_field_ref" {
-                        for_each = try([for k in keys(value_from.value) : k if k == "resource_field_ref"], [])
+                        for_each = try(lookup(lookup(env.value, "value_from"), "resource_field_ref", "empty") != "empty" ? [{ for k, v in env.value.value_from.resource_field_ref : k => v }] : [], {})
 
                         content {
                           container_name = lookup(resource_field_ref.value, "container_name", null)
@@ -460,7 +460,7 @@ resource "kubernetes_deployment" "application" {
                       }
 
                       dynamic "secret_key_ref" {
-                        for_each = try([for k in keys(value_from.value) : k if k == "secret_key_ref"], [])
+                        for_each = try(lookup(lookup(env.value, "value_from"), "secret_key_ref", "empty") != "empty" ? [{ for k, v in env.value.value_from.secret_key_ref : k => v }] : [], {})
 
                         content {
                           key      = lookup(secret_key_ref.value, "key", null)
