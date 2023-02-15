@@ -558,16 +558,25 @@ resource "kubernetes_deployment" "application" {
                 }
               }
 
-              # dynamic "secret" {
-              #   for_each = try(length(keys(lookup(volume.value, "secret", {}))) != 0 ? [{ for k,v in volume.value.secret : k => v }] : [], {})
+              dynamic "secret" {
+                for_each = try(length(keys(lookup(volume.value, "secret", {}))) != 0 ? [{ for k,v in volume.value.secret : k => v }] : [], {})
 
-              #   content {
-              #     default_mode = lookup(secret.value, "default_mode", null)
-              #     items = [{ for k, v in something : k => v }]
-              #     optional = lookup(secret.value, "optional", null)
-              #     secret_name = lookup(secret.value, "secret_name", null)
-              #   }
-              # }
+                content {
+                  default_mode = lookup(secret.value, "default_mode", null)
+                  optional = lookup(secret.value, "optional", null)
+                  secret_name = lookup(secret.value, "secret_name", null)
+                  
+                  dynamic "items" {
+                    for_each = [{ for k,v in lookup(secret.value, "items") : k => v }]
+
+                    content {
+                      key = lookup(items.value, "key", null)
+                      mode = lookup(items.value, "mode", null)
+                      path = lookup(items.value, "path", null)
+                    }
+                  }
+                }
+              }
             }
           }
         }
