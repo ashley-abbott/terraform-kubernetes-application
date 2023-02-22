@@ -23,7 +23,7 @@ resource "kubernetes_deployment" "application" {
       revision_history_limit    = lookup(spec.value, "revision_history_limit", null)
 
       selector {
-        match_labels = "${local.selector}"
+        match_labels = merge(local.selector, local.deployment_labels[each.key])
       }
 
       strategy {
