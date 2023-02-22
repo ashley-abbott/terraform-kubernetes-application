@@ -1,14 +1,17 @@
 locals {
-  service_selector = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
-  hpa_enabled      = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
-  ingress_enabled  = can(coalesce(var.ingress_spec))
-  pdb_enabled      = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
-  pvc_enabled      = length(var.persistent_volume_claim_spec) == 0 ? false : true
-  # affinity         = merge({ "node_affinity" = { for k, v in var.node_affinity : k => v } }, { "pod_affinity" = { for k, v in var.pod_affinity : k => v } }, { "pod_anti_affinity" = { for k, v in var.pod_anti_affinity : k => v } })
-  affinity_enabled = length(var.node_affinity) > 0 || length(var.pod_affinity) > 0 || length(var.pod_anti_affinity) > 0 ? ["affinity"] : []
-  configmap_data   = { for I in keys(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
-  secret_data      = { for I in keys(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data)) : I => { binary = try(var.secret_binary_data[I], {}), data = try(var.secret_data[I], {}) } }
-  service_accounts = (var.use_existing_k8s_sa == true) ? toset([]) : try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), toset([]))
+  selector          = try({ for k, v in var.service_spec[0]["selector"] : k => v != null }, { app = var.app_name })
+  sha               = var.enable_green_deployment == true ? { "${var.commit_before_sha}" = var.commit_before_sha, "${var.commit_short_sha}" = var.commit_short_sha } : { "${var.commit_short_sha}" = var.commit_short_sha }
+  deployment        = (var.enable_green_deployment == true && var.switch_traffic == false) ? toset([local.sha[var.commit_before_sha], local.sha[var.commit_short_sha]]) : toset([local.sha[var.commit_short_sha]])
+  deployment_labels = var.enable_green_deployment == true ? { "${var.commit_before_sha}" = { revision = var.commit_before_sha }, "${var.commit_short_sha}" = { revision = var.commit_short_sha } } : { "${var.commit_short_sha}" = { revision = var.commit_short_sha } }
+  service_selector  = can(coalesce(var.service_selector)) ? var.service_selector : (var.enable_green_deployment == true && var.switch_traffic == false) ? { "app" = var.app_name, "revision" = local.sha[var.commit_before_sha] } : { "app" = var.app_name, "revision" = local.sha[var.commit_short_sha] }
+  hpa_enabled       = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
+  ingress_enabled   = can(coalesce(var.ingress_spec))
+  pdb_enabled       = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
+  pvc_enabled       = length(var.persistent_volume_claim_spec) == 0 ? false : true
+  affinity_enabled  = length(var.node_affinity) > 0 || length(var.pod_affinity) > 0 || length(var.pod_anti_affinity) > 0 ? ["affinity"] : []
+  configmap_data    = { for I in keys(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
+  secret_data       = { for I in keys(merge({ for k, v in var.secret_binary_data : k => {} }, var.secret_data)) : I => { binary = try(var.secret_binary_data[I], {}), data = try(var.secret_data[I], {}) } }
+  service_accounts  = (var.use_existing_k8s_sa == true) ? toset([]) : try(toset([for key, value in var.deployment_spec[*].service_account_name : value if value != null]), toset([]))
 
   standard_metadata = [{
     name      = var.app_name
@@ -17,7 +20,7 @@ locals {
 
   deployment_metadata = [
     merge(local.standard_metadata[0], {
-      labels      = try(merge(var.common_labels, { app = var.app_name }, var.deployment_labels), {})
+      labels      = try(merge(var.common_labels, { app = var.app_name }), {})
       annotations = try(merge(var.deployment_annotations, var.common_annotations), {})
     })
   ]

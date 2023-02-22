@@ -1,14 +1,8 @@
-# output "config_data" {
-#   value       = local.configmap_data
-#   description = "Assist in debugging"
-# }
+output "commit_before_sha" {
+  description = "Git commit short SHA used in the last deployment"
+  value       = var.enable_green_deployment ? var.commit_before_sha : null
+}
 
-# output "config_binary_data" {
-#   value       = local.configmap_binary_data
-#   description = "Assist in debugging"
-# }
-
-# output "sercret_binary_data" {
-#   value       = local.secret_binary_data
-#   description = "Assist in debugging"
-# }
+output "commit_short_sha" {
+  value = var.commit_short_sha
+}

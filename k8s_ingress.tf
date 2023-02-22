@@ -67,7 +67,7 @@ resource "kubernetes_ingress_v1" "application" {
 
         content {
           hosts       = try(tls.value.hosts, [])
-          secret_name = try(tls.value.hosts, null)
+          secret_name = try(tls.value.secret_name, null)
         }
       }
     }

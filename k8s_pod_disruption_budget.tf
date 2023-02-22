@@ -16,11 +16,15 @@ resource "kubernetes_pod_disruption_budget_v1" "application" {
     max_unavailable = try(var.pod_disruption_budget_max_unavailable, null)
     min_available   = try(var.pod_disruption_budget_min_available, null)
 
-    dynamic "selector" {
-      for_each = local.service_selector
+    selector {
+      match_labels = local.selector
 
-      content {
-        match_labels = local.service_selector
+      dynamic "match_expressions" {
+        for_each = local.selector
+
+        content {
+
+        }
       }
     }
   }

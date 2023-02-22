@@ -1,10 +1,13 @@
 resource "kubernetes_deployment" "application" {
+  for_each = local.deployment
+
   dynamic "metadata" {
     for_each = local.deployment_metadata
+
     content {
-      name        = metadata.value["name"]
+      name        = "${metadata.value["name"]}-${local.sha[each.key]}"
       namespace   = metadata.value["namespace"]
-      labels      = metadata.value["labels"]
+      labels      = merge(metadata.value["labels"], local.deployment_labels[each.key])
       annotations = metadata.value["annotations"]
     }
   }
@@ -19,12 +22,8 @@ resource "kubernetes_deployment" "application" {
       progress_deadline_seconds = lookup(spec.value, "progress_deadline_seconds", null)
       revision_history_limit    = lookup(spec.value, "revision_history_limit", null)
 
-      dynamic "selector" {
-        for_each = local.service_selector
-
-        content {
-          match_labels = local.service_selector
-        }
+      selector {
+        match_labels = "${local.selector}"
       }
 
       strategy {
@@ -43,10 +42,11 @@ resource "kubernetes_deployment" "application" {
       template {
         dynamic "metadata" {
           for_each = local.deployment_metadata
+
           content {
-            name        = metadata.value["name"]
+            name        = "${metadata.value["name"]}-${local.sha[each.key]}"
             namespace   = metadata.value["namespace"]
-            labels      = metadata.value["labels"]
+            labels      = merge(metadata.value["labels"], local.deployment_labels[each.key])
             annotations = metadata.value["annotations"]
           }
         }
@@ -559,18 +559,18 @@ resource "kubernetes_deployment" "application" {
               }
 
               dynamic "secret" {
-                for_each = try(length(keys(lookup(volume.value, "secret", {}))) != 0 ? [{ for k,v in volume.value.secret : k => v }] : [], {})
+                for_each = try(length(keys(lookup(volume.value, "secret", {}))) != 0 ? [{ for k, v in volume.value.secret : k => v }] : [], {})
 
                 content {
                   default_mode = lookup(secret.value, "default_mode", null)
-                  optional = lookup(secret.value, "optional", null)
-                  secret_name = lookup(secret.value, "secret_name", null)
-                  
+                  optional     = lookup(secret.value, "optional", null)
+                  secret_name  = lookup(secret.value, "secret_name", null)
+
                   dynamic "items" {
-                    for_each = [{ for k,v in lookup(secret.value, "items") : k => v }]
+                    for_each = [{ for k, v in lookup(secret.value, "items") : k => v }]
 
                     content {
-                      key = lookup(items.value, "key", null)
+                      key  = lookup(items.value, "key", null)
                       mode = lookup(items.value, "mode", null)
                       path = lookup(items.value, "path", null)
                     }

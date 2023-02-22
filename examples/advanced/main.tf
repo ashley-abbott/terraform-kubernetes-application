@@ -37,7 +37,7 @@ module "my_k8s_application" {
               name = "DBPASSWORD"
               value_from = {
                 secret_key_ref = {
-                  key = "db_password"
+                  key  = "db_password"
                   name = "nginx-database"
                 }
               }
@@ -62,7 +62,7 @@ module "my_k8s_application" {
           }]
           volume_mount = [
             {
-              name = "credentials"
+              name       = "credentials"
               mount_path = "/tmp/credentials"
             }
           ]
@@ -85,7 +85,7 @@ module "my_k8s_application" {
   service_spec = [{
     ports = [
       {
-        "port" = 80,
+        "port"         = 80,
         "app_protocol" = "http"
       },
       {
@@ -121,7 +121,7 @@ module "my_k8s_application" {
 
   secret_data = {
     database = {
-      db_host  = "dbhost:3306"
+      db_host = "dbhost:3306"
     }
   }
 

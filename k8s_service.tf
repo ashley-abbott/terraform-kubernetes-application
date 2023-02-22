@@ -11,6 +11,7 @@ resource "kubernetes_service_v1" "application" {
 
   dynamic "spec" {
     for_each = var.service_spec
+
     content {
       allocate_load_balancer_node_ports = try(spec.allocate_load_balancer_node_ports, null)
       cluster_ip                        = try(spec.cluster_ip, null)

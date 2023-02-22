@@ -9,9 +9,9 @@ variable "namespace" {
 }
 
 variable "use_existing_k8s_sa" {
-  type = bool
+  type        = bool
   description = "(optional) Boolean used to control whether to utilise a pre existing K8s service account"
-  default = false
+  default     = false
 }
 
 # Service
@@ -27,6 +27,12 @@ variable "service_annotations" {
   default     = {}
 }
 
+variable "service_selector" {
+  type        = map(string)
+  description = "(optional) describe your variable"
+  default     = null
+}
+
 variable "service_spec" {
   type = list(object({
     allocate_load_balancer_node_ports = optional(bool)
@@ -38,7 +44,6 @@ variable "service_spec" {
     internal_traffic_policy           = optional(string)
     load_balancer_ip                  = optional(string)
     session_affinity                  = optional(string)
-    selector                          = optional(map(string))
     type                              = optional(string)
     ports = list(object({
       name         = optional(string)
@@ -252,4 +257,28 @@ variable "common_annotations" {
   type        = map(any)
   description = "(optional) Common annotations that you require across all objects being created"
   default     = {}
+}
+
+variable "enable_green_deployment" {
+  type        = bool
+  description = "(optional) describe your variable"
+  default     = false
+}
+
+variable "switch_traffic" {
+  type        = bool
+  description = "(optional) describe your variable"
+  default     = false
+}
+
+variable "commit_short_sha" {
+  type        = string
+  description = "(optional) describe your variable"
+  default     = "00000001"
+}
+
+variable "commit_before_sha" {
+  type        = string
+  description = "(optional) describe your variable"
+  default     = "00000000"
 }
