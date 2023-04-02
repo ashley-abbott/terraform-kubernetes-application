@@ -19,12 +19,8 @@ resource "kubernetes_deployment" "application" {
       progress_deadline_seconds = lookup(spec.value, "progress_deadline_seconds", null)
       revision_history_limit    = lookup(spec.value, "revision_history_limit", null)
 
-      dynamic "selector" {
-        for_each = local.service_selector
-
-        content {
-          match_labels = local.service_selector
-        }
+      selector {
+        match_labels = local.selector
       }
 
       strategy {

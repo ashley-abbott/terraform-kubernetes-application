@@ -1,5 +1,6 @@
 locals {
-  service_selector = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name })
+  selector         = try({ for k,v in var.service_spec[0]["selector"] : k => v if k != null }, { "app" = var.app_name })
+  service_selector = try({ for key, value in var.service_spec[0]["selector"] : key => value if key != null }, { "app" = var.app_name, "revision" = "CI_COMMIT_SHORT_SHA" })
   hpa_enabled      = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
   ingress_enabled  = can(coalesce(var.ingress_spec))
   pdb_enabled      = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
