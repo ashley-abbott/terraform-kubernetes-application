@@ -128,6 +128,12 @@ variable "target_cpu_utilization_percentage" {
   default     = null
 }
 
+variable "hpa_target_api_version" {
+  type        = any
+  description = "(optional) Set the API Version for scaleTargetRef"
+  default     = null
+}
+
 # StatefulSet
 variable "statefulset_labels" {
   type        = map(string)

@@ -21,7 +21,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
       target_cpu_utilization_percentage = spec.value["target_cpu_utilization_percentage"]
 
       scale_target_ref {
-        api_version = lookup(spec, "api_version", null)
+        api_version = spec.value["api_version"]
         kind        = "Deployment"
         name        = local.deployment_metadata[0]["name"]
       }

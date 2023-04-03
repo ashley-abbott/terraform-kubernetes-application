@@ -90,6 +90,7 @@ locals {
       max_replicas                      = try(var.max_replicas, 1)
       min_replicas                      = try(var.min_replicas, null)
       target_cpu_utilization_percentage = try(var.target_cpu_utilization_percentage, null)
+      api_version                       = try(var.hpa_target_api_version, null)
     }
   ]
 }

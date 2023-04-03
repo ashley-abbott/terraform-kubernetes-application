@@ -20,4 +20,19 @@ module "my_k8s_application" {
   service_spec = [{
     ports = [{ "port" = 80 }]
   }]
+
+  secret_binary_data = {
+    jfrog-artifactory = {
+      type = "kubernetes.io/dockerconfigjson"
+      ".dockerconfigjson" = jsonencode(
+        {
+          "auths": {
+            "foundry-docker-snapshots.artifactory.platform.nwminfra.net": {
+              "auth": "blahblahblahblah"
+            }
+          }
+        }
+      )
+    }
+  }
 }
