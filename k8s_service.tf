@@ -1,4 +1,6 @@
 resource "kubernetes_service_v1" "application" {
+  for_each = local.service_type
+  
   dynamic "metadata" {
     for_each = local.service_metadata
     content {

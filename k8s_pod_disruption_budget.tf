@@ -22,7 +22,7 @@ resource "kubernetes_pod_disruption_budget_v1" "application" {
       dynamic "match_expressions" {
         for_each = local.selector
         content {
-          
+
         }
       }
     }
