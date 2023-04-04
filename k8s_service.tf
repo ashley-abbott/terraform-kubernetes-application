@@ -1,4 +1,6 @@
 resource "kubernetes_service_v1" "application" {
+  for_each = local.service_type
+
   dynamic "metadata" {
     for_each = local.service_metadata
     content {
@@ -21,7 +23,7 @@ resource "kubernetes_service_v1" "application" {
       internal_traffic_policy           = try(spec.internal_traffic_policy, null)
       load_balancer_ip                  = try(spec.load_balancer_ip, null)
       session_affinity                  = try(spec.session_affinity, null)
-      selector                          = local.service_selector
+      selector                          = local.selector
       type                              = try(spec.value["type"], null)
 
       dynamic "port" {

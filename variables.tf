@@ -9,9 +9,9 @@ variable "namespace" {
 }
 
 variable "use_existing_k8s_sa" {
-  type = bool
+  type        = bool
   description = "(optional) Boolean used to control whether to utilise a pre existing K8s service account"
-  default = false
+  default     = false
 }
 
 # Service
@@ -27,6 +27,12 @@ variable "service_annotations" {
   default     = {}
 }
 
+variable "service_selector" {
+  type        = map(string)
+  description = "value"
+  default     = null
+}
+
 variable "service_spec" {
   type = list(object({
     allocate_load_balancer_node_ports = optional(bool)
@@ -38,7 +44,6 @@ variable "service_spec" {
     internal_traffic_policy           = optional(string)
     load_balancer_ip                  = optional(string)
     session_affinity                  = optional(string)
-    selector                          = optional(map(string))
     type                              = optional(string)
     ports = list(object({
       name         = optional(string)
@@ -74,7 +79,7 @@ variable "deployment_spec" {
 
   For reference: https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/deployment#spec
   EOF
-  default     = [{}]
+  default     = {}
 }
 
 variable "node_affinity" {
@@ -121,6 +126,25 @@ variable "target_cpu_utilization_percentage" {
   type        = string
   description = "(optional) Target average CPU utilization (represented as a percentage of requested CPU) over all the pods"
   default     = null
+}
+
+# StatefulSet
+variable "statefulset_labels" {
+  type        = map(string)
+  description = "(optional) Additional labels that you require for the StatefulSet object"
+  default     = {}
+}
+
+variable "statefulset_annotations" {
+  type        = map(string)
+  description = "(optional) Additional annotations that you require for the StatefulSet object"
+  default     = {}
+}
+
+variable "statefulset_spec" {
+  type        = any
+  description = "(optional) describe your variable"
+  default     = {}
 }
 
 # Ingress
@@ -253,3 +277,10 @@ variable "common_annotations" {
   description = "(optional) Common annotations that you require across all objects being created"
   default     = {}
 }
+
+# Initial work for blue/green
+variable "commit_short_sha" { default = "00000001" }
+variable "commit_before_sha" { default = "00000000" }
+variable "enable_green_deployment" { default = false }
+variable "revert_green" { default = false }
+variable "switch_traffic" { default = false }

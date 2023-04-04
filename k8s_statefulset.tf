@@ -1,50 +1,116 @@
-resource "kubernetes_deployment" "application" {
-  for_each = local.deployment_type
+resource "kubernetes_stateful_set_v1" "stateful_application" {
+  for_each = local.statefulset
 
   dynamic "metadata" {
-    for_each = local.deployment_metadata
+    for_each = local.statefulset_metadata
+
     content {
-      name        = "${metadata.value["name"]}-${each.key}"
+      name        = metadata.value["name"]
       namespace   = metadata.value["namespace"]
-      labels      = merge(metadata.value["labels"], { revision = each.key })
+      labels      = metadata.value["labels"]
       annotations = metadata.value["annotations"]
     }
   }
 
   dynamic "spec" {
-    for_each = [var.deployment_spec]
+    for_each = [var.statefulset_spec]
 
     content {
-      replicas                  = lookup(spec.value, "replicas", null)
-      min_ready_seconds         = lookup(spec.value, "min_ready_seconds", null)
-      paused                    = lookup(spec.value, "paused", null)
-      progress_deadline_seconds = lookup(spec.value, "progress_deadline_seconds", null)
-      revision_history_limit    = lookup(spec.value, "revision_history_limit", null)
+      pod_management_policy  = lookup(spec.value, "pod_management_policy", null)
+      replicas               = lookup(spec.value, "replicas", null)
+      revision_history_limit = lookup(spec.value, "revision_history_limit", null)
+      service_name           = lookup(spec.value, "service_name")
 
-      selector {
-        match_labels = merge(local.selector, { revision = each.key })
+      dynamic "selector" {
+        for_each = lookup(spec.value, "selector", "empty") == "empty" ? [{}] : [{ for k, v in spec.value["selector"] : k => v }]
+
+        content {
+          match_labels = try(selector.value["match_labels"], { app = var.app_name })
+
+          dynamic "match_expressions" {
+            for_each = try(selector.value["match_expressions"], [])
+            iterator = expression
+
+            content {
+              key      = lookup(expression.value, "key", null)
+              operator = lookup(expression.value, "operator", null)
+              values   = lookup(expression.value, "values", null)
+            }
+          }
+        }
       }
 
-      strategy {
-        type = lookup(spec.value, "strategy_type", null)
+      update_strategy {
+        type = lookup(spec.value, "update_strategy", null)
 
         dynamic "rolling_update" {
-          for_each = lookup(spec.value, "strategy_type", "empty") == "empty" ? [{ for k, v in try(spec.value.rolling_update, {}) : k => v }] : []
+          for_each = lookup(spec.value, "update_strategy", "empty") == "empty" ? [{ for k, v in try(spec.value.rolling_update, {}) : k => v }] : []
 
           content {
-            max_surge       = lookup(rolling_update.value, "max_surge", null)
-            max_unavailable = lookup(rolling_update.value, "max_unavailable", null)
+            partition = lookup(rolling_update.value, "partition", null)
+          }
+        }
+      }
+
+      dynamic "volume_claim_template" {
+        for_each = lookup(spec.value, "volume_claim_template", "null") == "null" ? [] : [{ for k, v in spec.value.volume_claim_template : k => v }]
+        iterator = vct
+
+        content {
+          dynamic "metadata" {
+            for_each = local.statefulset_metadata
+
+            content {
+              name        = lookup(vct.value, "name")
+              namespace   = metadata.value["namespace"]
+              labels      = metadata.value["labels"]
+              annotations = metadata.value["annotations"]
+            }
+          }
+
+          spec {
+            storage_class_name = lookup(spec.value["volume_claim_template"], "storage_class_name", null)
+            access_modes       = lookup(spec.value["volume_claim_template"], "access_modes")
+            volume_name        = lookup(spec.value["volume_claim_template"], "volume_name", null)
+
+            dynamic "selector" {
+              for_each = lookup(lookup(spec.value, "volume_claim_template"), "selector", "empty") == "empty" ? [{}] : [{ for k, v in spec.value.volume_claim_template["selector"] : k => v }]
+
+              content {
+                match_labels = try(selector.value["match_labels"], { app = var.app_name })
+
+                dynamic "match_expressions" {
+                  for_each = try(selector.value["match_expressions"], [])
+                  iterator = expressions
+
+                  content {
+                    key      = lookup(expressions.value, "key", null)
+                    operator = lookup(expressions.value, "operator", null)
+                    values   = lookup(expressions.value, "values", null)
+                  }
+                }
+              }
+            }
+
+            resources {
+              limits = {
+                storage = lookup(lookup(vct.value["resources"], "limits"), "storage", null)
+              }
+              requests = {
+                storage = lookup(lookup(vct.value["resources"], "requests"), "storage", null)
+              }
+            }
           }
         }
       }
 
       template {
         dynamic "metadata" {
-          for_each = local.deployment_metadata
+          for_each = local.statefulset_metadata
+
           content {
             name        = metadata.value["name"]
-            namespace   = metadata.value["namespace"]
-            labels      = merge(metadata.value["labels"], { revision = each.key })
+            labels      = metadata.value["labels"]
             annotations = metadata.value["annotations"]
           }
         }
@@ -230,10 +296,10 @@ resource "kubernetes_deployment" "application" {
           }
 
           dynamic "init_container" {
-            for_each = try(spec.value["podspec"].init_containers, {})
+            for_each = try(spec.value["init_containers"], {})
 
             content {
-              name              = init_container.value["name"]
+              name              = init_container.key
               image             = init_container.value["image"]
               image_pull_policy = lookup(init_container.value, "image_pull_policy", null)
               args              = lookup(init_container.value, "args", null)
@@ -317,16 +383,28 @@ resource "kubernetes_deployment" "application" {
                   }
                 }
               }
+
+              dynamic "volume_mount" {
+                for_each = try(init_container.value["volume_mount"], {})
+                iterator = mount
+                content {
+                  name              = lookup(mount.value, "name")
+                  mount_path        = lookup(mount.value, "mount_path")
+                  read_only         = lookup(mount.value, "read_only", null)
+                  sub_path          = lookup(mount.value, "sub_path", null)
+                  mount_propagation = lookup(mount.value, "mount_propagation", null)
+                }
+              }
             }
           }
 
           dynamic "container" {
-            for_each = try(spec.value["podspec"].containers, {})
+            for_each = spec.value["containers"]
 
             content {
               args              = lookup(container.value, "args", null)
               command           = lookup(container.value, "command", null)
-              name              = try(container.value["name"], var.app_name)
+              name              = container.key
               image             = container.value["image"]
               image_pull_policy = lookup(container.value, "image_pull_policy", null)
 
@@ -423,7 +501,7 @@ resource "kubernetes_deployment" "application" {
                 for_each = try(container.value["env"], {})
 
                 content {
-                  name  = lookup(env.value, "name")
+                  name  = env.key
                   value = lookup(env.value, "value", null)
 
                   dynamic "value_from" {
@@ -515,10 +593,10 @@ resource "kubernetes_deployment" "application" {
 
           # https://cloud.google.com/kubernetes-engine/docs/concepts/volumes
           dynamic "volume" {
-            for_each = try(spec.value.podspec.volumes, {})
+            for_each = try(spec.value["volumes"], [])
 
             content {
-              name = lookup(volume.value, "name")
+              name = volume.key
               dynamic "config_map" {
                 for_each = try(length(keys(lookup(volume.value, "config_map", {}))) != 0 ? [{ for k, v in volume.value.config_map : k => v }] : [], {})
 
