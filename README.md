@@ -23,6 +23,8 @@ module "k8s-application" {
 	 service_spec  = 
 
 	 # Optional variables
+	 commit_before_sha  = "00000000"
+	 commit_short_sha  = "00000001"
 	 common_annotations  = {}
 	 common_labels  = {}
 	 config_annotations  = {}
@@ -31,9 +33,8 @@ module "k8s-application" {
 	 configmap_data  = {}
 	 deployment_annotations  = {}
 	 deployment_labels  = {}
-	 deployment_spec  = [
-  {}
-]
+	 deployment_spec  = {}
+	 enable_green_deployment  = false
 	 hpa_annotations  = {}
 	 hpa_labels  = {}
 	 ingress_annotations  = {}
@@ -51,12 +52,18 @@ module "k8s-application" {
 	 pod_disruption_budget_labels  = {}
 	 pod_disruption_budget_max_unavailable  = null
 	 pod_disruption_budget_min_available  = null
+	 revert_green  = false
 	 secret_annotations  = {}
 	 secret_binary_data  = {}
 	 secret_data  = {}
 	 secret_labels  = {}
 	 service_annotations  = {}
 	 service_labels  = {}
+	 service_selector  = null
+	 statefulset_annotations  = {}
+	 statefulset_labels  = {}
+	 statefulset_spec  = {}
+	 switch_traffic  = false
 	 target_cpu_utilization_percentage  = null
 	 use_existing_k8s_sa  = false
 }
@@ -73,15 +80,18 @@ module "k8s-application" {
 | [kubernetes_persistent_volume_claim_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/persistent_volume_claim_v1) | resource |
 | [kubernetes_pod_disruption_budget_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/pod_disruption_budget_v1) | resource |
 | [kubernetes_secret.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret) | resource |
-| [kubernetes_secret_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret_v1) | resource |
+| [kubernetes_secret_v1.application_service_account](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret_v1) | resource |
 | [kubernetes_service_account_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/service_account_v1) | resource |
 | [kubernetes_service_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/service_v1) | resource |
+| [kubernetes_stateful_set_v1.stateful_application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/stateful_set_v1) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | Name of the application being deployed, this will be used across multiple resources | `string` | n/a | yes |
+| <a name="input_commit_before_sha"></a> [commit\_before\_sha](#input\_commit\_before\_sha) | n/a | `string` | `"00000000"` | no |
+| <a name="input_commit_short_sha"></a> [commit\_short\_sha](#input\_commit\_short\_sha) | Initial work for blue/green | `string` | `"00000001"` | no |
 | <a name="input_common_annotations"></a> [common\_annotations](#input\_common\_annotations) | (optional) Common annotations that you require across all objects being created | `map(any)` | `{}` | no |
 | <a name="input_common_labels"></a> [common\_labels](#input\_common\_labels) | (optional) Common labels that you require across all objects being created | `map(any)` | `{}` | no |
 | <a name="input_config_annotations"></a> [config\_annotations](#input\_config\_annotations) | (optional) Additional annotations that you require for the ConfigMap object(s) | `map(string)` | `{}` | no |
@@ -90,7 +100,8 @@ module "k8s-application" {
 | <a name="input_configmap_data"></a> [configmap\_data](#input\_configmap\_data) | (optional) Conditionally create one or more ConfigMaps, keys from both `configmap_data` and `configmap_binary_data` will be merged allowing to specify only one of the two variables if so desired | `any` | `{}` | no |
 | <a name="input_deployment_annotations"></a> [deployment\_annotations](#input\_deployment\_annotations) | (optional) Additional annotations that you require for the Deployment object | `map(string)` | `{}` | no |
 | <a name="input_deployment_labels"></a> [deployment\_labels](#input\_deployment\_labels) | (optional) Additional labels that you require for the Deployment object | `map(string)` | `{}` | no |
-| <a name="input_deployment_spec"></a> [deployment\_spec](#input\_deployment\_spec) | Includes both Replication Controller Spec and Pod Spec, this variable is set to type `any` to allow as many or as few attributes as you desire, defaulting to the resource defaults when omitted.<br><br>The attribute `strategy { type }` is defined as `strategy_type` for brevity see [k8s\_deployment.tf](./k8s\_deployment.tf#L31)<br><br>For reference: https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/deployment#spec | `any` | <pre>[<br>  {}<br>]</pre> | no |
+| <a name="input_deployment_spec"></a> [deployment\_spec](#input\_deployment\_spec) | Includes both Replication Controller Spec and Pod Spec, this variable is set to type `any` to allow as many or as few attributes as you desire, defaulting to the resource defaults when omitted.<br><br>The attribute `strategy { type }` is defined as `strategy_type` for brevity see [k8s\_deployment.tf](./k8s\_deployment.tf#L31)<br><br>For reference: https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/deployment#spec | `any` | `{}` | no |
+| <a name="input_enable_green_deployment"></a> [enable\_green\_deployment](#input\_enable\_green\_deployment) | n/a | `bool` | `false` | no |
 | <a name="input_hpa_annotations"></a> [hpa\_annotations](#input\_hpa\_annotations) | (optional) Additional annotations that you require for the Horizontal Pod Autoscaler object | `map(string)` | `{}` | no |
 | <a name="input_hpa_labels"></a> [hpa\_labels](#input\_hpa\_labels) | (optional) Additional labels that you require for the Horizontal Pod Autoscaler object | `map(string)` | `{}` | no |
 | <a name="input_ingress_annotations"></a> [ingress\_annotations](#input\_ingress\_annotations) | (optional) Additional annotations that you require for the Ingress object | `map(string)` | `{}` | no |
@@ -109,13 +120,19 @@ module "k8s-application" {
 | <a name="input_pod_disruption_budget_labels"></a> [pod\_disruption\_budget\_labels](#input\_pod\_disruption\_budget\_labels) | (optional) Additional labels that you require for the PodDisruptionBudget object | `map(string)` | `{}` | no |
 | <a name="input_pod_disruption_budget_max_unavailable"></a> [pod\_disruption\_budget\_max\_unavailable](#input\_pod\_disruption\_budget\_max\_unavailable) | (optional) Specifies the number of pods from the selected set that can be unavailable after the eviction. It can be either an absolute number or a percentage. You can specify only one of max\_unavailable and min\_available in a single Pod Disruption Budget | `string` | `null` | no |
 | <a name="input_pod_disruption_budget_min_available"></a> [pod\_disruption\_budget\_min\_available](#input\_pod\_disruption\_budget\_min\_available) | (optional) Specifies the number of pods from the selected set that must still be available after the eviction, even in the absence of the evicted pod. min\_available can be either an absolute number or a percentage. You can specify only one of min\_available and max\_unavailable in a single Pod Disruption Budget | `string` | `null` | no |
+| <a name="input_revert_green"></a> [revert\_green](#input\_revert\_green) | n/a | `bool` | `false` | no |
 | <a name="input_secret_annotations"></a> [secret\_annotations](#input\_secret\_annotations) | (optional) Additional annotations that you require for the Secret object(s) | `map(string)` | `{}` | no |
 | <a name="input_secret_binary_data"></a> [secret\_binary\_data](#input\_secret\_binary\_data) | (optional) Conditionally create one or more Secrets, keys from both `secret_data` and `secret_binary_data` will be merged allowing to specify only one of the two variables if so desired. Values specified in this variable will be base64 encoded before being passed to the K8s API | `any` | `{}` | no |
 | <a name="input_secret_data"></a> [secret\_data](#input\_secret\_data) | (optional) Conditionally create one or more Secrets, keys from both `secret_data` and `secret_binary_data` will be merged allowing to specify only one of the two variables if so desired | `any` | `{}` | no |
 | <a name="input_secret_labels"></a> [secret\_labels](#input\_secret\_labels) | (optional) Additional labels that you require for the Secret object(s) | `map(string)` | `{}` | no |
 | <a name="input_service_annotations"></a> [service\_annotations](#input\_service\_annotations) | (optional) Additional annotations that you require for the Service object | `map(string)` | `{}` | no |
 | <a name="input_service_labels"></a> [service\_labels](#input\_service\_labels) | (optional) Additional labels that you require for the Serivce object | `map(string)` | `{}` | no |
-| <a name="input_service_spec"></a> [service\_spec](#input\_service\_spec) | All possible arguments for the [Service spec](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_v1), the only required parameters are `ports = [{ "port" = <port-number> }]` | <pre>list(object({<br>    allocate_load_balancer_node_ports = optional(bool)<br>    cluster_ip                        = optional(string)<br>    cluster_ips                       = optional(list(string))<br>    external_ips                      = optional(list(string))<br>    external_name                     = optional(string)<br>    external_traffic_policy           = optional(string)<br>    internal_traffic_policy           = optional(string)<br>    load_balancer_ip                  = optional(string)<br>    session_affinity                  = optional(string)<br>    selector                          = optional(map(string))<br>    type                              = optional(string)<br>    ports = list(object({<br>      name         = optional(string)<br>      app_protocol = optional(string)<br>      port         = number<br>      target_port  = optional(number)<br>      protocol     = optional(string)<br>      node_port    = optional(number)<br>    }))<br>  }))</pre> | n/a | yes |
+| <a name="input_service_selector"></a> [service\_selector](#input\_service\_selector) | value | `map(string)` | `null` | no |
+| <a name="input_service_spec"></a> [service\_spec](#input\_service\_spec) | All possible arguments for the [Service spec](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_v1), the only required parameters are `ports = [{ "port" = <port-number> }]` | <pre>list(object({<br>    allocate_load_balancer_node_ports = optional(bool)<br>    cluster_ip                        = optional(string)<br>    cluster_ips                       = optional(list(string))<br>    external_ips                      = optional(list(string))<br>    external_name                     = optional(string)<br>    external_traffic_policy           = optional(string)<br>    internal_traffic_policy           = optional(string)<br>    load_balancer_ip                  = optional(string)<br>    session_affinity                  = optional(string)<br>    type                              = optional(string)<br>    ports = list(object({<br>      name         = optional(string)<br>      app_protocol = optional(string)<br>      port         = number<br>      target_port  = optional(number)<br>      protocol     = optional(string)<br>      node_port    = optional(number)<br>    }))<br>  }))</pre> | n/a | yes |
+| <a name="input_statefulset_annotations"></a> [statefulset\_annotations](#input\_statefulset\_annotations) | (optional) Additional annotations that you require for the StatefulSet object | `map(string)` | `{}` | no |
+| <a name="input_statefulset_labels"></a> [statefulset\_labels](#input\_statefulset\_labels) | (optional) Additional labels that you require for the StatefulSet object | `map(string)` | `{}` | no |
+| <a name="input_statefulset_spec"></a> [statefulset\_spec](#input\_statefulset\_spec) | (optional) describe your variable | `any` | `{}` | no |
+| <a name="input_switch_traffic"></a> [switch\_traffic](#input\_switch\_traffic) | n/a | `bool` | `false` | no |
 | <a name="input_target_cpu_utilization_percentage"></a> [target\_cpu\_utilization\_percentage](#input\_target\_cpu\_utilization\_percentage) | (optional) Target average CPU utilization (represented as a percentage of requested CPU) over all the pods | `string` | `null` | no |
 | <a name="input_use_existing_k8s_sa"></a> [use\_existing\_k8s\_sa](#input\_use\_existing\_k8s\_sa) | (optional) Boolean used to control whether to utilise a pre existing K8s service account | `bool` | `false` | no |
 
