@@ -13,9 +13,9 @@ module "my_k8s_application" {
   app_name  = "nginx"
   namespace = "default"
 
-  deployment_spec = [{
+  deployment_spec = {
     podspec = { containers = [{ image = "nginx:latest" }] }
-  }]
+  }
 
   service_spec = [{
     ports = [{ "port" = 80 }]
