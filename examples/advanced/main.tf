@@ -3,7 +3,7 @@ module "my_k8s_application" {
   app_name  = "nginx"
   namespace = "default"
 
-  deployment_spec = [{
+  deployment_spec = {
     replicas = 2
     podspec = {
       volumes = [
@@ -37,7 +37,7 @@ module "my_k8s_application" {
               name = "DBPASSWORD"
               value_from = {
                 secret_key_ref = {
-                  key = "db_password"
+                  key  = "db_password"
                   name = "nginx-database"
                 }
               }
@@ -50,7 +50,7 @@ module "my_k8s_application" {
               }
             }
           ]
-          resources = [{
+          resources = {
             limits = {
               cpu    = "100m"
               memory = "100M"
@@ -59,10 +59,10 @@ module "my_k8s_application" {
               cpu    = "50m"
               memory = "50M"
             }
-          }]
+          }
           volume_mount = [
             {
-              name = "credentials"
+              name       = "credentials"
               mount_path = "/tmp/credentials"
             }
           ]
@@ -80,12 +80,12 @@ module "my_k8s_application" {
         }
       ]
     }
-  }]
+  }
 
   service_spec = [{
     ports = [
       {
-        "port" = 80,
+        "port"         = 80,
         "app_protocol" = "http"
       },
       {
@@ -121,7 +121,7 @@ module "my_k8s_application" {
 
   secret_data = {
     database = {
-      db_host  = "dbhost:3306"
+      db_host = "dbhost:3306"
     }
   }
 

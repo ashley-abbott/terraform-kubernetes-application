@@ -502,6 +502,7 @@ resource "kubernetes_deployment" "application" {
               dynamic "volume_mount" {
                 for_each = try(container.value["volume_mount"], {})
                 iterator = mount
+
                 content {
                   name              = lookup(mount.value, "name")
                   mount_path        = lookup(mount.value, "mount_path")
