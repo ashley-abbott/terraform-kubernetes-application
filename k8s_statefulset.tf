@@ -21,8 +21,23 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
       revision_history_limit = lookup(spec.value, "revision_history_limit", null)
       service_name           = lookup(spec.value, "service_name")
 
-      selector {
-        match_labels = lookup(spec.value, "selector")
+      dynamic "selector" {
+        for_each = lookup(spec.value, "selector", "empty") == "empty" ? [{}] : [{ for k, v in spec.value["selector"] : k => v }]
+
+        content {
+          match_labels = try(selector.value["match_labels"], { app = var.app_name })
+
+          dynamic "match_expressions" {
+            for_each = try(selector.value["match_expressions"], [])
+            iterator = expression
+
+            content {
+              key      = lookup(expression.value, "key", null)
+              operator = lookup(expression.value, "operator", null)
+              values   = lookup(expression.value, "values", null)
+            }
+          }
+        }
       }
 
       update_strategy {
@@ -37,21 +52,57 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
         }
       }
 
-      # dynamic "volume_claim_template" {
-      #   for_each = something #changeme
+      dynamic "volume_claim_template" {
+        for_each = lookup(spec.value, "volume_claim_template", "null") == "null" ? [] : [{ for k, v in spec.value.volume_claim_template : k => v }]
+        iterator = vct
 
-      #   content {
-      #     storage_class_name = try(spec.value.storage_class_name, null)
-      #     access_modes       = try(spec.value.access_modes, null)
-      #     volume_name        = try(spec.value.volume_name, null)
+        content {
+          dynamic "metadata" {
+            for_each = local.statefulset_metadata
 
-      #     resources {
-      #       requests = {
-      #         storage = try(spec.value.storage_request, null)
-      #       }
-      #     }
-      #   }
-      # }
+            content {
+              name        = lookup(vct.value, "name")
+              namespace   = metadata.value["namespace"]
+              labels      = metadata.value["labels"]
+              annotations = metadata.value["annotations"]
+            }
+          }
+
+          spec {
+            storage_class_name = lookup(spec.value["volume_claim_template"], "storage_class_name", null)
+            access_modes       = lookup(spec.value["volume_claim_template"], "access_modes")
+            volume_name        = lookup(spec.value["volume_claim_template"], "volume_name", null)
+
+            dynamic "selector" {
+              for_each = lookup(lookup(spec.value, "volume_claim_template"), "selector", "empty") == "empty" ? [{}] : [{ for k, v in spec.value.volume_claim_template["selector"] : k => v }]
+
+              content {
+                match_labels = try(selector.value["match_labels"], { app = var.app_name })
+
+                dynamic "match_expressions" {
+                  for_each = try(selector.value["match_expressions"], [])
+                  iterator = expressions
+
+                  content {
+                    key      = lookup(expressions.value, "key", null)
+                    operator = lookup(expressions.value, "operator", null)
+                    values   = lookup(expressions.value, "values", null)
+                  }
+                }
+              }
+            }
+
+            resources {
+              limits = {
+                storage = lookup(lookup(vct.value["resources"], "limits"), "storage", null)
+              }
+              requests = {
+                storage = lookup(lookup(vct.value["resources"], "requests"), "storage", null)
+              }
+            }
+          }
+        }
+      }
 
       template {
         dynamic "metadata" {
@@ -332,6 +383,18 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
                   }
                 }
               }
+
+              dynamic "volume_mount" {
+                for_each = try(init_container.value["volume_mount"], {})
+                iterator = mount
+                content {
+                  name              = lookup(mount.value, "name")
+                  mount_path        = lookup(mount.value, "mount_path")
+                  read_only         = lookup(mount.value, "read_only", null)
+                  sub_path          = lookup(mount.value, "sub_path", null)
+                  mount_propagation = lookup(mount.value, "mount_propagation", null)
+                }
+              }
             }
           }
 
@@ -530,7 +593,7 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
 
           # https://cloud.google.com/kubernetes-engine/docs/concepts/volumes
           dynamic "volume" {
-            for_each = try(spec.value["volumes"], {})
+            for_each = try(spec.value["volumes"], [])
 
             content {
               name = volume.key

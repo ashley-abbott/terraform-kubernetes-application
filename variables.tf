@@ -79,7 +79,7 @@ variable "deployment_spec" {
 
   For reference: https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/deployment#spec
   EOF
-  default     = [{}]
+  default     = {}
 }
 
 variable "node_affinity" {
@@ -277,3 +277,10 @@ variable "common_annotations" {
   description = "(optional) Common annotations that you require across all objects being created"
   default     = {}
 }
+
+# Initial work for blue/green
+variable "commit_short_sha" { default = "00000001" }
+variable "commit_before_sha" { default = "00000000" }
+variable "enable_green_deployment" { default = false }
+variable "revert_green" { default = false }
+variable "switch_traffic" { default = false }

@@ -1,16 +1,18 @@
 resource "kubernetes_deployment" "application" {
+  for_each = local.deployment_type
+
   dynamic "metadata" {
     for_each = local.deployment_metadata
     content {
-      name        = metadata.value["name"]
+      name        = "${metadata.value["name"]}-${each.key}"
       namespace   = metadata.value["namespace"]
-      labels      = metadata.value["labels"]
+      labels      = merge(metadata.value["labels"], { revision = each.key })
       annotations = metadata.value["annotations"]
     }
   }
 
   dynamic "spec" {
-    for_each = var.deployment_spec
+    for_each = [var.deployment_spec]
 
     content {
       replicas                  = lookup(spec.value, "replicas", null)
@@ -20,7 +22,7 @@ resource "kubernetes_deployment" "application" {
       revision_history_limit    = lookup(spec.value, "revision_history_limit", null)
 
       selector {
-        match_labels = local.selector
+        match_labels = merge(local.selector, { revision = each.key })
       }
 
       strategy {
@@ -42,7 +44,7 @@ resource "kubernetes_deployment" "application" {
           content {
             name        = metadata.value["name"]
             namespace   = metadata.value["namespace"]
-            labels      = metadata.value["labels"]
+            labels      = merge(metadata.value["labels"], { revision = each.key })
             annotations = metadata.value["annotations"]
           }
         }
@@ -403,16 +405,16 @@ resource "kubernetes_deployment" "application" {
               }
 
               dynamic "resources" {
-                for_each = try(container.value["resources"], {})
+                for_each = try(length(container.value["resources"]) > 0 ? ["resources"] : [], {})
 
                 content {
                   limits = {
-                    cpu    = lookup(resources.value.limits, "cpu", null)
-                    memory = lookup(resources.value.limits, "memory", null)
+                    cpu    = lookup(lookup(container.value["resources"], "limits"), "cpu", null)
+                    memory = lookup(lookup(container.value["resources"], "limits"), "memory", null)
                   }
                   requests = {
-                    cpu    = lookup(resources.value.requests, "cpu", null)
-                    memory = lookup(resources.value.requests, "memory", null)
+                    cpu    = lookup(lookup(container.value["resources"], "requests"), "cpu", null)
+                    memory = lookup(lookup(container.value["resources"], "requests"), "memory", null)
                   }
                 }
               }

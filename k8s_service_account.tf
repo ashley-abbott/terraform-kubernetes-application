@@ -21,7 +21,7 @@ resource "kubernetes_service_account_v1" "application" {
   automount_service_account_token = true
 }
 
-resource "kubernetes_secret_v1" "application" {
+resource "kubernetes_secret_v1" "application_service_account" {
   for_each = local.service_accounts
 
   dynamic "metadata" {
