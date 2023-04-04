@@ -8,7 +8,7 @@ locals {
   statefulset         = (local.statefulset_enabled && local.enable_deployment == false) ? toset(["statefulset"]) : toset([])
   deployment_type     = local.enable_deployment == false ? toset([]) : local.revert ? toset([local.sha["previous"]]) : local.switch ? toset([local.sha["new"]]) : var.enable_green_deployment ? toset([local.sha["previous"], local.sha["new"]]) : toset([local.sha["new"]])
   service_type        = local.statefulset_enabled ? toset(["statefulset"]) : local.deployment_type
-  hpa_enabled         = can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
+  hpa_enabled         = var.hpa_spec != {} ? true : false # can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
   ingress_enabled     = can(coalesce(var.ingress_spec))
   pdb_enabled         = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
   pvc_enabled         = length(var.persistent_volume_claim_spec) == 0 ? false : true

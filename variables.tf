@@ -110,6 +110,12 @@ variable "hpa_annotations" {
   default     = {}
 }
 
+variable "hpa_spec" {
+  type = any
+  description = "(optional) "
+  default = {}
+}
+
 variable "min_replicas" {
   type        = number
   description = "(optional) Minimum amount of replicas that you desire for the Horizontal Pod Autoscaler object"
