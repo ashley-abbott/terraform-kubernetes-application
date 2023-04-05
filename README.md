@@ -37,6 +37,8 @@ module "k8s-application" {
 	 enable_green_deployment  = false
 	 hpa_annotations  = {}
 	 hpa_labels  = {}
+	 hpa_spec  = {}
+	 hpa_target_api_version  = null
 	 ingress_annotations  = {}
 	 ingress_labels  = {}
 	 ingress_spec  = null
@@ -74,12 +76,12 @@ module "k8s-application" {
 | Name | Type |
 |------|------|
 | [kubernetes_config_map.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/config_map) | resource |
-| [kubernetes_deployment.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/deployment) | resource |
-| [kubernetes_horizontal_pod_autoscaler.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/horizontal_pod_autoscaler) | resource |
+| [kubernetes_deployment_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/deployment_v1) | resource |
+| [kubernetes_horizontal_pod_autoscaler_v2.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/horizontal_pod_autoscaler_v2) | resource |
 | [kubernetes_ingress_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/ingress_v1) | resource |
 | [kubernetes_persistent_volume_claim_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/persistent_volume_claim_v1) | resource |
 | [kubernetes_pod_disruption_budget_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/pod_disruption_budget_v1) | resource |
-| [kubernetes_secret.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret) | resource |
+| [kubernetes_secret_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret_v1) | resource |
 | [kubernetes_secret_v1.application_service_account](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/secret_v1) | resource |
 | [kubernetes_service_account_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/service_account_v1) | resource |
 | [kubernetes_service_v1.application](https://registry.terraform.io/providers/hashicorp/kubernetes/2.16.1/docs/resources/service_v1) | resource |
@@ -104,6 +106,8 @@ module "k8s-application" {
 | <a name="input_enable_green_deployment"></a> [enable\_green\_deployment](#input\_enable\_green\_deployment) | n/a | `bool` | `false` | no |
 | <a name="input_hpa_annotations"></a> [hpa\_annotations](#input\_hpa\_annotations) | (optional) Additional annotations that you require for the Horizontal Pod Autoscaler object | `map(string)` | `{}` | no |
 | <a name="input_hpa_labels"></a> [hpa\_labels](#input\_hpa\_labels) | (optional) Additional labels that you require for the Horizontal Pod Autoscaler object | `map(string)` | `{}` | no |
+| <a name="input_hpa_spec"></a> [hpa\_spec](#input\_hpa\_spec) | (optional) | `any` | `{}` | no |
+| <a name="input_hpa_target_api_version"></a> [hpa\_target\_api\_version](#input\_hpa\_target\_api\_version) | (optional) Set the API Version for scaleTargetRef | `any` | `null` | no |
 | <a name="input_ingress_annotations"></a> [ingress\_annotations](#input\_ingress\_annotations) | (optional) Additional annotations that you require for the Ingress object | `map(string)` | `{}` | no |
 | <a name="input_ingress_labels"></a> [ingress\_labels](#input\_ingress\_labels) | (optional) Additional labels that you require for the Ingress object | `map(string)` | `{}` | no |
 | <a name="input_ingress_spec"></a> [ingress\_spec](#input\_ingress\_spec) | (optional) Conditionally create an Ingress object, if this variable isn't populated the Ingress is skipped | `any` | `null` | no |
