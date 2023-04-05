@@ -78,7 +78,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
               target {
                 # average_utilization = lookup(external.value, "average_utilization", null) # Only valid for Resource metric source type
                 average_value = lookup(external.value, "average_value", null)
-                type          = lookup(external.value, "type")
+                type          = lookup(external.value, "type") # Utilization, Value or AverageValue
                 value         = lookup(external.value, "value", null)
               }
             }
@@ -120,7 +120,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
               target {
                 # average_utilization = lookup(object.value, "average_utilization", null) # Only valid for Resource metric source type
                 average_value = lookup(object.value, "average_value", null)
-                type          = lookup(object.value, "type")
+                type          = lookup(object.value, "type") # Utilization, Value or AverageValue
                 value         = lookup(object.value, "value", null)
               }
             }
@@ -156,7 +156,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
               target {
                 # average_utilization = lookup(pods.value, "average_utilization", null) # Only valid for Resource metric source type
                 average_value = lookup(pods.value, "average_value", null)
-                type          = lookup(pods.value, "type")
+                type          = lookup(pods.value, "type") # Utilization, Value or AverageValue
                 value         = lookup(pods.value, "value", null)
               }
             }
@@ -171,7 +171,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
               target {
                 average_utilization = lookup(resource.value, "average_utilization", null)
                 average_value       = lookup(resource.value, "average_value", null)
-                type                = lookup(resource.value, "type")
+                type                = lookup(resource.value, "type") # Utilization, Value or AverageValue
                 value               = lookup(resource.value, "value", null)
               }
             }
@@ -179,19 +179,49 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
         }
       }
 
-      # dynamic "behavior" {
-      #   for_each = try(spec.value.behavior, {})
+      dynamic "behavior" {
+        for_each = [lookup(spec.value, "behavior", [])] # == "empty" ? [{}] : [{ for k, v in spec.value.behavior : k => v }]
 
-      #   content {
-      #     dynamic "scale_up" {
+        content {
+          dynamic "scale_up" {
+            for_each = try(length(keys(lookup(behavior.value, "scale_up", {}))) != 0 ? [{ for k, v in behavior.value.scale_up : k => v }] : [], {}) # [try(lookup(behavior.value, "scale_up", {}), [])]
 
-      #     }
+            content {
+              select_policy                = lookup(scale_up.value, "select_policy", null)
+              stabilization_window_seconds = lookup(scale_up.value, "stabilization_window_seconds", null)
 
-      #     dynamic "scale_down" {
+              dynamic "policy" {
+                for_each = scale_up.value["policies"]
 
-      #     }
-      #   }
-      # }
+                content {
+                  period_seconds = lookup(policy.value, "period_seconds")
+                  type           = lookup(policy.value, "type")
+                  value          = lookup(policy.value, "value")
+                }
+              }
+            }
+          }
+
+          dynamic "scale_down" {
+            for_each = try(length(keys(lookup(behavior.value, "scale_down", {}))) != 0 ? [{ for k, v in behavior.value.scale_down : k => v }] : [], {})
+
+            content {
+              select_policy                = lookup(scale_down.value, "select_policy", null)
+              stabilization_window_seconds = lookup(scale_down.value, "stabilization_window_seconds", null)
+
+              dynamic "policy" {
+                for_each = try(scale_down.value["policies"], [])
+
+                content {
+                  period_seconds = lookup(policy.value, "period_seconds")
+                  type           = lookup(policy.value, "type")
+                  value          = lookup(policy.value, "value")
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
