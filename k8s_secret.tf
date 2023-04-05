@@ -1,4 +1,4 @@
-resource "kubernetes_secret" "application" {
+resource "kubernetes_secret_v1" "application" {
   for_each = local.secret_data
 
   dynamic "metadata" {

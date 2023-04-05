@@ -110,6 +110,12 @@ variable "hpa_annotations" {
   default     = {}
 }
 
+variable "hpa_spec" {
+  type        = any
+  description = "(optional) "
+  default     = {}
+}
+
 variable "min_replicas" {
   type        = number
   description = "(optional) Minimum amount of replicas that you desire for the Horizontal Pod Autoscaler object"
@@ -125,6 +131,12 @@ variable "max_replicas" {
 variable "target_cpu_utilization_percentage" {
   type        = string
   description = "(optional) Target average CPU utilization (represented as a percentage of requested CPU) over all the pods"
+  default     = null
+}
+
+variable "hpa_target_api_version" {
+  type        = any
+  description = "(optional) Set the API Version for scaleTargetRef"
   default     = null
 }
 
