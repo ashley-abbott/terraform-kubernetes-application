@@ -111,9 +111,9 @@ variable "hpa_annotations" {
 }
 
 variable "hpa_spec" {
-  type = any
+  type        = any
   description = "(optional) "
-  default = {}
+  default     = {}
 }
 
 variable "min_replicas" {

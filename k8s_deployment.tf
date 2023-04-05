@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "application" {
+resource "kubernetes_deployment_v1" "application" {
   for_each = local.deployment_type
 
   dynamic "metadata" {
@@ -519,7 +519,8 @@ resource "kubernetes_deployment" "application" {
             for_each = try(spec.value.podspec.volumes, {})
 
             content {
-              name = lookup(volume.value, "name")
+              name = volume.key
+
               dynamic "config_map" {
                 for_each = try(length(keys(lookup(volume.value, "config_map", {}))) != 0 ? [{ for k, v in volume.value.config_map : k => v }] : [], {})
 
