@@ -22,12 +22,12 @@ module "my_k8s_application" {
   }]
 
   secret_binary_data = {
-    jfrog-artifactory = {
+    artifactory = {
       type = "kubernetes.io/dockerconfigjson"
       ".dockerconfigjson" = jsonencode(
         {
           "auths": {
-            "foundry-docker-snapshots.artifactory.platform.nwminfra.net": {
+            "example.docker-repo.net": {
               "auth": "blahblahblahblah"
             }
           }

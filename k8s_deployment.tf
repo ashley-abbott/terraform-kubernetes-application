@@ -21,8 +21,23 @@ resource "kubernetes_deployment_v1" "application" {
       progress_deadline_seconds = lookup(spec.value, "progress_deadline_seconds", null)
       revision_history_limit    = lookup(spec.value, "revision_history_limit", null)
 
-      selector {
-        match_labels = merge(local.selector, { revision = each.key })
+      dynamic "selector" {
+        for_each = lookup(spec.value, "selector", "empty") == "empty" ? [{}] : [{ for k, v in spec.value["selector"] : k => v }]
+
+        content {
+          match_labels = try(selector.value["match_labels"], { app = var.app_name })
+
+          dynamic "match_expressions" {
+            for_each = try(selector.value["match_expressions"], [])
+            iterator = expression
+
+            content {
+              key      = lookup(expression.value, "key", null)
+              operator = lookup(expression.value, "operator", null)
+              values   = lookup(expression.value, "values", null)
+            }
+          }
+        }
       }
 
       strategy {

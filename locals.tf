@@ -10,7 +10,7 @@ locals {
   service_type        = local.statefulset_enabled ? toset(["statefulset"]) : local.deployment_type
   hpa_enabled         = var.hpa_spec != {} ? true : false # can(coalesce(var.min_replicas, var.max_replicas, var.target_cpu_utilization_percentage))
   ingress_enabled     = can(coalesce(var.ingress_spec))
-  pdb_enabled         = can(coalesce(var.pod_disruption_budget_max_unavailable, var.pod_disruption_budget_min_available))
+  pdb_enabled         = var.pod_disruption_budget_spec != {} ? true : false
   pvc_enabled         = length(var.persistent_volume_claim_spec) == 0 ? false : true
   affinity_enabled    = length(var.node_affinity) > 0 || length(var.pod_affinity) > 0 || length(var.pod_anti_affinity) > 0 ? ["affinity"] : []
   configmap_data      = { for I in keys(merge({ for k, v in var.configmap_binary_data : k => {} }, var.configmap_data)) : I => { binary = try(var.configmap_binary_data[I], {}), data = try(var.configmap_data[I], {}) } }
@@ -19,7 +19,7 @@ locals {
 
   standard_metadata = [{
     name      = var.app_name
-    namespace = try(lower(var.namespace), "default")
+    namespace = lower(var.namespace)
   }]
 
   deployment_metadata = [
@@ -83,14 +83,5 @@ locals {
       labels      = try(merge(var.common_labels, { app = var.app_name }, var.statefulset_labels), {})
       annotations = try(merge(var.statefulset_annotations, var.common_annotations), {})
     })
-  ]
-
-  hpa_spec = [
-    {
-      max_replicas                      = try(var.max_replicas, 1)
-      min_replicas                      = try(var.min_replicas, null)
-      target_cpu_utilization_percentage = try(var.target_cpu_utilization_percentage, null)
-      api_version                       = try(var.hpa_target_api_version, null)
-    }
   ]
 }

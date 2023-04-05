@@ -59,7 +59,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
                   for_each = lookup(external.value, "selector", "empty") == "empty" ? [{}] : [{ for k, v in external.value["selector"] : k => v }]
 
                   content {
-                    match_labels = try(selector.value["match_labels"], { app = var.app_name })
+                    match_labels = try(selector.value["match_labels"], null)
 
                     dynamic "match_expressions" {
                       for_each = try(selector.value["match_expressions"], [])
