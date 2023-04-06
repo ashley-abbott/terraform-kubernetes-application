@@ -2,7 +2,7 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
   for_each = local.statefulset
 
   dynamic "metadata" {
-    for_each = local.statefulset_metadata
+    for_each = local.metadata["statefulset"]
 
     content {
       name        = metadata.value["name"]
@@ -58,7 +58,7 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
 
         content {
           dynamic "metadata" {
-            for_each = local.statefulset_metadata
+            for_each = local.metadata["statefulset"]
 
             content {
               name        = lookup(vct.value, "name")
@@ -106,7 +106,7 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
 
       template {
         dynamic "metadata" {
-          for_each = local.statefulset_metadata
+          for_each = local.metadata["statefulset"]
 
           content {
             name        = metadata.value["name"]

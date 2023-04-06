@@ -2,9 +2,9 @@ resource "kubernetes_deployment_v1" "application" {
   for_each = local.deployment_type
 
   dynamic "metadata" {
-    for_each = local.deployment_metadata
+    for_each = local.metadata["deployment"]
     content {
-      name        = "${metadata.value["name"]}-${each.key}"
+      name        = join("-", [metadata.value["name"], each.key])
       namespace   = metadata.value["namespace"]
       labels      = merge(metadata.value["labels"], { revision = each.key })
       annotations = metadata.value["annotations"]
@@ -25,7 +25,7 @@ resource "kubernetes_deployment_v1" "application" {
         for_each = lookup(spec.value, "selector", "empty") == "empty" ? [{}] : [{ for k, v in spec.value["selector"] : k => v }]
 
         content {
-          match_labels = try(selector.value["match_labels"], { app = var.app_name })
+          match_labels = try(selector.value["match_labels"], { app = var.app_name, revision = each.key })
 
           dynamic "match_expressions" {
             for_each = try(selector.value["match_expressions"], [])
@@ -55,7 +55,8 @@ resource "kubernetes_deployment_v1" "application" {
 
       template {
         dynamic "metadata" {
-          for_each = local.deployment_metadata
+          for_each = local.metadata["deployment"]
+
           content {
             name        = metadata.value["name"]
             namespace   = metadata.value["namespace"]

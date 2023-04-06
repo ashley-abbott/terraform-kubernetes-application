@@ -2,7 +2,7 @@ resource "kubernetes_ingress_v1" "application" {
   count = local.ingress_enabled ? 1 : 0
 
   dynamic "metadata" {
-    for_each = local.ingress_metadata
+    for_each = local.metadata["ingress"]
 
     content {
       name        = metadata.value["name"]

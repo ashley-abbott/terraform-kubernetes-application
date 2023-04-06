@@ -2,7 +2,7 @@ resource "kubernetes_pod_disruption_budget_v1" "application" {
   count = local.pdb_enabled ? 1 : 0
 
   dynamic "metadata" {
-    for_each = local.pdb_metadata
+    for_each = local.metadata["pdb"]
 
     content {
       name        = metadata.value["name"]

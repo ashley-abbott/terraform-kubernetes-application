@@ -2,7 +2,7 @@ resource "kubernetes_config_map" "application" {
   for_each = local.configmap_data
 
   dynamic "metadata" {
-    for_each = local.config_metadata
+    for_each = local.metadata["configmap"]
 
     content {
       name        = "${metadata.value["name"]}-${each.key}-config"

@@ -26,9 +26,9 @@ module "my_k8s_application" {
       type = "kubernetes.io/dockerconfigjson"
       ".dockerconfigjson" = jsonencode(
         {
-          "auths": {
-            "example.docker-repo.net": {
-              "auth": "dXNlcm5hbWU6cmFuZG9tc3RyaW5nCg=="
+          "auths" : {
+            "example.docker-repo.net" : {
+              "auth" : "dXNlcm5hbWU6cmFuZG9tc3RyaW5nCg=="
             }
           }
         }

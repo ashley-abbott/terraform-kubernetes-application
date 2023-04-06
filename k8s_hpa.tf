@@ -2,7 +2,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
   count = local.hpa_enabled ? 1 : 0
 
   dynamic "metadata" {
-    for_each = local.hpa_metadata
+    for_each = local.metadata["hpa"]
 
     content {
       name        = metadata.value["name"]
@@ -23,7 +23,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
       scale_target_ref {
         api_version = lookup(lookup(spec.value, "scale_target_ref", {}), "api_version", "apps/v1")
         kind        = lookup(lookup(spec.value, "scale_target_ref", {}), "kind", "Deployment")
-        name        = lookup(lookup(spec.value, "scale_target_ref", {}), "name", local.deployment_metadata[0]["name"])
+        name        = lookup(lookup(spec.value, "scale_target_ref", {}), "name") #, local.deployment_metadata[0]["name"])
       }
 
       dynamic "metric" {
@@ -187,7 +187,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
             for_each = try(length(keys(lookup(behavior.value, "scale_up", {}))) != 0 ? [{ for k, v in behavior.value.scale_up : k => v }] : [], {}) # [try(lookup(behavior.value, "scale_up", {}), [])]
 
             content {
-              select_policy                = lookup(scale_up.value, "select_policy", null)
+              select_policy                = lookup(scale_up.value, "select_policy", "Max")
               stabilization_window_seconds = lookup(scale_up.value, "stabilization_window_seconds", null)
 
               dynamic "policy" {
@@ -206,7 +206,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
             for_each = try(length(keys(lookup(behavior.value, "scale_down", {}))) != 0 ? [{ for k, v in behavior.value.scale_down : k => v }] : [], {})
 
             content {
-              select_policy                = lookup(scale_down.value, "select_policy", null)
+              select_policy                = lookup(scale_down.value, "select_policy", "Max")
               stabilization_window_seconds = lookup(scale_down.value, "stabilization_window_seconds", null)
 
               dynamic "policy" {

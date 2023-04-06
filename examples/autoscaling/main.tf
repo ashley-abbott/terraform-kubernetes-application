@@ -1,6 +1,6 @@
 module "my_k8s_application" {
-  source    = "../../"
-  app_name  = "nginx"
+  source   = "../../"
+  app_name = "nginx"
 
   deployment_spec = {
     podspec = { containers = [{ image = "nginx:latest" }] }
@@ -8,9 +8,9 @@ module "my_k8s_application" {
 
   service_spec = {
     ports = [
-      { 
+      {
         app_protocol = "http"
-        port = 80 
+        port         = 80
       }
     ]
   }
@@ -38,17 +38,17 @@ module "my_k8s_application" {
     behavior = {
       scale_up = {
         stabilization_window_seconds = 300
-        select_policy = "Min"
+        select_policy                = "Min"
         policies = [
           {
             period_seconds = 180
-            type = "Percent"
-            value = 100
+            type           = "Percent"
+            value          = 100
           },
           {
             period_seconds = 600
-            type = "Pods"
-            value = 5
+            type           = "Pods"
+            value          = 5
           }
         ]
       }
