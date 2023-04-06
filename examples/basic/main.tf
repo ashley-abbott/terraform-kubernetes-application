@@ -17,9 +17,9 @@ module "my_k8s_application" {
     podspec = { containers = [{ image = "nginx:latest" }] }
   }
 
-  service_spec = [{
+  service_spec = {
     ports = [{ "port" = 80 }]
-  }]
+  }
 
   secret_binary_data = {
     artifactory = {
