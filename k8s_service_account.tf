@@ -10,18 +10,22 @@ resource "kubernetes_service_account_v1" "application" {
     }
   }
 
-  image_pull_secret {
-    name = "image"
+  dynamic "image_pull_secret" {
+    for_each = var.service_account_image_pull_secret
+
+    content {
+      name = image_pull_secret.value
+    }
   }
 
   secret {
     name = "${each.key}-sa-token"
   }
 
-  automount_service_account_token = true
+  automount_service_account_token = var.automount_service_account_token
 }
 
-resource "kubernetes_secret_v1" "application_service_account" {
+resource "kubernetes_secret_v1" "application_sa_token" {
   for_each = local.service_accounts
 
   dynamic "metadata" {

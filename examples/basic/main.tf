@@ -28,7 +28,7 @@ module "my_k8s_application" {
         {
           "auths": {
             "example.docker-repo.net": {
-              "auth": "blahblahblahblah"
+              "auth": "dXNlcm5hbWU6cmFuZG9tc3RyaW5nCg=="
             }
           }
         }

@@ -9,10 +9,23 @@ variable "namespace" {
   default     = "default"
 }
 
+# Service Account
 variable "use_existing_k8s_sa" {
   type        = bool
   description = "(optional) Boolean used to control whether to utilise a pre existing K8s service account"
   default     = false
+}
+
+variable "automount_service_account_token" {
+  type = bool
+  description = "(optional) Whether to enable automatic mounting of the service account token"
+  default = true
+}
+
+variable "service_account_image_pull_secret" {
+  type = list
+  description = "(optional) A list of references to secrets in the same namespace to use for pulling any images in pods that reference this Service Account"
+  default = []
 }
 
 # Service
