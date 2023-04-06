@@ -17,18 +17,18 @@ module "my_k8s_application" {
     podspec = { containers = [{ image = "nginx:latest" }] }
   }
 
-  service_spec = [{
+  service_spec = {
     ports = [{ "port" = 80 }]
-  }]
+  }
 
   secret_binary_data = {
-    jfrog-artifactory = {
+    artifactory = {
       type = "kubernetes.io/dockerconfigjson"
       ".dockerconfigjson" = jsonencode(
         {
-          "auths": {
-            "foundry-docker-snapshots.artifactory.platform.nwminfra.net": {
-              "auth": "blahblahblahblah"
+          "auths" : {
+            "example.docker-repo.net" : {
+              "auth" : "dXNlcm5hbWU6cmFuZG9tc3RyaW5nCg=="
             }
           }
         }

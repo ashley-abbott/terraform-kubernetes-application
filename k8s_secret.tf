@@ -2,7 +2,7 @@ resource "kubernetes_secret_v1" "application" {
   for_each = local.secret_data
 
   dynamic "metadata" {
-    for_each = local.secret_metadata
+    for_each = local.metadata["secret"]
 
     content {
       name        = "${metadata.value["name"]}-${each.key}"

@@ -82,7 +82,7 @@ module "my_k8s_application" {
     }
   }
 
-  service_spec = [{
+  service_spec = {
     ports = [
       {
         "port"         = 80,
@@ -94,7 +94,7 @@ module "my_k8s_application" {
         "target_port" = 9002,
         "protocol"    = "UDP"
     }]
-  }]
+  }
 
   common_labels = {
     dept    = "Avengers"

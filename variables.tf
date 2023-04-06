@@ -6,12 +6,26 @@ variable "app_name" {
 variable "namespace" {
   type        = string
   description = "The Kubernetes namespace in which you want all your resources to be deployed"
+  default     = "default"
 }
 
+# Service Account
 variable "use_existing_k8s_sa" {
   type        = bool
   description = "(optional) Boolean used to control whether to utilise a pre existing K8s service account"
   default     = false
+}
+
+variable "automount_service_account_token" {
+  type        = bool
+  description = "(optional) Whether to enable automatic mounting of the service account token"
+  default     = true
+}
+
+variable "service_account_image_pull_secret" {
+  type        = list(any)
+  description = "(optional) A list of references to secrets in the same namespace to use for pulling any images in pods that reference this Service Account"
+  default     = []
 }
 
 # Service
@@ -34,27 +48,9 @@ variable "service_selector" {
 }
 
 variable "service_spec" {
-  type = list(object({
-    allocate_load_balancer_node_ports = optional(bool)
-    cluster_ip                        = optional(string)
-    cluster_ips                       = optional(list(string))
-    external_ips                      = optional(list(string))
-    external_name                     = optional(string)
-    external_traffic_policy           = optional(string)
-    internal_traffic_policy           = optional(string)
-    load_balancer_ip                  = optional(string)
-    session_affinity                  = optional(string)
-    type                              = optional(string)
-    ports = list(object({
-      name         = optional(string)
-      app_protocol = optional(string)
-      port         = number
-      target_port  = optional(number)
-      protocol     = optional(string)
-      node_port    = optional(number)
-    }))
-  }))
+  type        = any
   description = "All possible arguments for the [Service spec](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_v1), the only required parameters are `ports = [{ \"port\" = <port-number> }]"
+  default     = null
 }
 
 # Deployment
@@ -114,30 +110,6 @@ variable "hpa_spec" {
   type        = any
   description = "(optional) "
   default     = {}
-}
-
-variable "min_replicas" {
-  type        = number
-  description = "(optional) Minimum amount of replicas that you desire for the Horizontal Pod Autoscaler object"
-  default     = null
-}
-
-variable "max_replicas" {
-  type        = number
-  description = "(optional) Maximum amount of replicas that you desire for the Horizontal Pod Autoscaler object"
-  default     = null
-}
-
-variable "target_cpu_utilization_percentage" {
-  type        = string
-  description = "(optional) Target average CPU utilization (represented as a percentage of requested CPU) over all the pods"
-  default     = null
-}
-
-variable "hpa_target_api_version" {
-  type        = any
-  description = "(optional) Set the API Version for scaleTargetRef"
-  default     = null
 }
 
 # StatefulSet
@@ -229,18 +201,6 @@ variable "secret_annotations" {
 }
 
 # Pod Disruption Budget
-variable "pod_disruption_budget_max_unavailable" {
-  type        = string
-  description = "(optional) Specifies the number of pods from the selected set that can be unavailable after the eviction. It can be either an absolute number or a percentage. You can specify only one of max_unavailable and min_available in a single Pod Disruption Budget"
-  default     = null
-}
-
-variable "pod_disruption_budget_min_available" {
-  type        = string
-  description = "(optional) Specifies the number of pods from the selected set that must still be available after the eviction, even in the absence of the evicted pod. min_available can be either an absolute number or a percentage. You can specify only one of min_available and max_unavailable in a single Pod Disruption Budget"
-  default     = null
-}
-
 variable "pod_disruption_budget_labels" {
   type        = map(string)
   description = "(optional) Additional labels that you require for the PodDisruptionBudget object"
@@ -253,18 +213,13 @@ variable "pod_disruption_budget_annotations" {
   default     = {}
 }
 
-# Persistent Volume Claim
-variable "persistent_volume_claim_spec" {
-  type = list(object({
-    access_modes       = optional(list(string))
-    storage_request    = optional(string)
-    storage_class_name = optional(string)
-    volume_name        = optional(string)
-  }))
-  description = "(optional) Conditionally create a [PersistentVolumeClaim](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/persistent_volume_claim_v1#spec), if this variable isn't populated the PVC is skipped "
-  default     = []
+variable "pod_disruption_budget_spec" {
+  type        = any
+  description = "(optional) describe your variable"
+  default     = {}
 }
 
+# Persistent Volume Claim
 variable "persistent_volume_claim_labels" {
   type        = map(string)
   description = "(optional) Additional labels that you require for the PersistentVolumeClaim object"
@@ -275,6 +230,17 @@ variable "persistent_volume_claim_annotations" {
   type        = map(string)
   description = "(optional) Additional labels that you require for the PersistentVolumeClaim object"
   default     = {}
+}
+
+variable "persistent_volume_claim_spec" {
+  type = list(object({
+    access_modes       = optional(list(string))
+    storage_request    = optional(string)
+    storage_class_name = optional(string)
+    volume_name        = optional(string)
+  }))
+  description = "(optional) Conditionally create a [PersistentVolumeClaim](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/persistent_volume_claim_v1#spec), if this variable isn't populated the PVC is skipped "
+  default     = []
 }
 
 # Common 

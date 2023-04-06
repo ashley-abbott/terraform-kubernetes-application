@@ -2,7 +2,7 @@ resource "kubernetes_persistent_volume_claim_v1" "application" {
   count = local.pvc_enabled ? 1 : 0
 
   dynamic "metadata" {
-    for_each = local.pvc_metadata
+    for_each = local.metadata["pvc"]
 
     content {
       name        = "${metadata.value["name"]}-pvc"
