@@ -542,9 +542,18 @@ resource "kubernetes_deployment_v1" "application" {
 
                 content {
                   default_mode = lookup(config_map.value, "default_mode", null)
-                  # items = [] #lookup(config_map.value, "items", null)
-                  optional = lookup(config_map.value, "optional", null)
-                  name     = lookup(config_map.value, "name", null)
+                  optional     = lookup(config_map.value, "optional", null)
+                  name         = lookup(config_map.value, "name", null)
+
+                  dynamic "items" {
+                    for_each = lookup(config_map.value, "items", [])
+
+                    content {
+                      key = lookup(items.value, "key", null)
+                      mode = lookup(items.value, "mode", null)
+                      path = lookup(items.value, "path", lookup(items.value, "key"))
+                    }
+                  }
                 }
               }
 
@@ -553,7 +562,16 @@ resource "kubernetes_deployment_v1" "application" {
 
                 content {
                   default_mode = lookup(downward_api.value, "default_mode", null)
-                  # items = lookup(downward_api.value, "items", null)
+                  
+                  dynamic "items" {
+                    for_each = lookup(downward_api.value, "items", null)
+
+                    content {
+                      key = lookup(items.value, "key", null)
+                      mode = lookup(items.value, "mode", null)
+                      path = lookup(items.value, "path", lookup(items.value, "key"))
+                    }
+                  }
                 }
               }
 
