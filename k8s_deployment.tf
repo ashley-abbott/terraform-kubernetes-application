@@ -567,9 +567,10 @@ resource "kubernetes_deployment_v1" "application" {
                     for_each = lookup(downward_api.value, "items", null)
 
                     content {
-                      key = lookup(items.value, "key", null)
-                      mode = lookup(items.value, "mode", null)
                       path = lookup(items.value, "path", lookup(items.value, "key"))
+                      field_ref {
+                        field_path = lookup(items.value, "field_path", null)
+                      }
                     }
                   }
                 }
