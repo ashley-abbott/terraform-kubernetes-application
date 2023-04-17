@@ -6,14 +6,13 @@ module "my_k8s_application" {
   deployment_spec = {
     replicas = 2
     podspec = {
-      volumes = [
-        {
-          name = "credentials"
+      volumes = {
+        credentials = {
           config_map = {
             name = "nginx-credentials-config"
           }
         }
-      ]
+      }
       init_containers = [
         {
           name  = "init"

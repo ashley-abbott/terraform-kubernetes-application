@@ -7,9 +7,9 @@ module "my_k8s_application" {
     podspec = { containers = [{ image = "nginx:latest" }] }
   }
 
-  service_spec = [{
+  service_spec = {
     ports = [{ "port" = 80 }]
-  }]
+  }
 
   ingress_spec = [{
     ingress_class_name = "nginx"
