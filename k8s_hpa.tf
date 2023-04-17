@@ -23,7 +23,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
       scale_target_ref {
         api_version = lookup(lookup(spec.value, "scale_target_ref", {}), "api_version", "apps/v1")
         kind        = lookup(lookup(spec.value, "scale_target_ref", {}), "kind", "Deployment")
-        name        = lookup(lookup(spec.value, "scale_target_ref", {}), "name") #, local.deployment_metadata[0]["name"])
+        name        = lookup(lookup(spec.value, "scale_target_ref", {}), "name")
       }
 
       dynamic "metric" {
@@ -180,11 +180,11 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "application" {
       }
 
       dynamic "behavior" {
-        for_each = [lookup(spec.value, "behavior", [])] # == "empty" ? [{}] : [{ for k, v in spec.value.behavior : k => v }]
+        for_each = [lookup(spec.value, "behavior", [])]
 
         content {
           dynamic "scale_up" {
-            for_each = try(length(keys(lookup(behavior.value, "scale_up", {}))) != 0 ? [{ for k, v in behavior.value.scale_up : k => v }] : [], {}) # [try(lookup(behavior.value, "scale_up", {}), [])]
+            for_each = try(length(keys(lookup(behavior.value, "scale_up", {}))) != 0 ? [{ for k, v in behavior.value.scale_up : k => v }] : [], {})
 
             content {
               select_policy                = lookup(scale_up.value, "select_policy", "Max")

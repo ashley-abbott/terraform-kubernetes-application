@@ -597,14 +597,24 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
 
             content {
               name = volume.key
+
               dynamic "config_map" {
                 for_each = try(length(keys(lookup(volume.value, "config_map", {}))) != 0 ? [{ for k, v in volume.value.config_map : k => v }] : [], {})
 
                 content {
                   default_mode = lookup(config_map.value, "default_mode", null)
-                  # items = [] #lookup(config_map.value, "items", null)
                   optional = lookup(config_map.value, "optional", null)
                   name     = lookup(config_map.value, "name", null)
+
+                  dynamic "items" {
+                    for_each = lookup(config_map.value, "items", [])
+
+                    content {
+                      key = lookup(items.value, "key", null)
+                      mode = lookup(items.value, "mode", null)
+                      path = lookup(items.value, "path", lookup(items.value, "key"))
+                    }
+                  }
                 }
               }
 
@@ -613,7 +623,17 @@ resource "kubernetes_stateful_set_v1" "stateful_application" {
 
                 content {
                   default_mode = lookup(downward_api.value, "default_mode", null)
-                  # items = lookup(downward_api.value, "items", null)
+                  
+                  dynamic "items" {
+                    for_each = lookup(downward_api.value, "items", null)
+
+                    content {
+                      path = lookup(items.value, "path", lookup(items.value, "key"))
+                      field_ref {
+                        field_path = lookup(items.value, "field_path", null)
+                      }
+                    }
+                  }
                 }
               }
 
