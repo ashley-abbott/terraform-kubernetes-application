@@ -6,7 +6,7 @@ locals {
   statefulset_enabled = var.statefulset_spec == {} ? false : true
   enable_deployment   = (var.deployment_spec == {} && local.statefulset_enabled) ? false : true
   statefulset         = (local.statefulset_enabled && local.enable_deployment == false) ? toset(["statefulset"]) : toset([])
-  deployment_type     = local.enable_deployment == false ? toset([]) : local.revert ? toset([local.sha["previous"]]) : local.switch ? toset([local.sha["new"]]) : var.enable_green_deployment ? toset([local.sha["previous"], local.sha["new"]]) : toset([local.sha["new"]])
+  deployment_type     = local.enable_deployment == false ? toset([]) : local.revert ? toset([local.sha["previous"]]) : local.switch ? toset([local.sha["new"]]) : var.enable_green_deployment ? toset([local.sha["previous"], local.sha["new"]]) : toset([var.app_name])
   service_type        = local.statefulset_enabled ? toset(["statefulset"]) : local.deployment_type
   hpa_enabled         = var.hpa_spec != {} ? true : false
   ingress_enabled     = can(coalesce(var.ingress_spec))

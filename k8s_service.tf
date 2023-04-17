@@ -5,7 +5,7 @@ resource "kubernetes_service_v1" "application" {
     for_each = local.metadata["service"]
 
     content {
-      name        = join("-", [metadata.value["name"], each.key])
+      name        = each.key == var.app_name ? metadata.value["name"] : join("-", [metadata.value["name"], each.key])
       namespace   = metadata.value["namespace"]
       labels      = metadata.value["labels"]
       annotations = metadata.value["annotations"]

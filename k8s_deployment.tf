@@ -4,7 +4,7 @@ resource "kubernetes_deployment_v1" "application" {
   dynamic "metadata" {
     for_each = local.metadata["deployment"]
     content {
-      name        = join("-", [metadata.value["name"], each.key])
+      name        = each.key == var.app_name ? metadata.value["name"] : join("-", [metadata.value["name"], each.key])
       namespace   = metadata.value["namespace"]
       labels      = merge(metadata.value["labels"], { revision = each.key })
       annotations = metadata.value["annotations"]
