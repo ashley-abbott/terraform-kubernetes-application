@@ -1,5 +1,7 @@
 # terraform-kubernetes-application
 
+[![Test Advanced Example](https://github.com/ashley-abbott/terraform-kubernetes-application/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/ashley-abbott/terraform-kubernetes-application/actions/workflows/test.yaml)
+
 This code is designed with Helm in mind to create a generic K8s application
 
 <!-- BEGIN_TF_DOCS -->
